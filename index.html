@@ -18,19 +18,15 @@ h1{text-align:center;margin:10px 0;font-size:1.4rem;}
 .hidden{display:none;}
 button{cursor:pointer}
 
-.box{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:20px;}
-
 input,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--input);color:var(--text);}
-input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);}
 label{font-size:.75rem;color:var(--muted);}
 .field{margin-bottom:10px;}
 
+.box{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:20px;}
+
 button.main{width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#052e16;font-weight:700;margin-top:6px;}
 button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:12px;background:transparent;color:var(--text);margin-top:6px;}
-.plus{width:36px;margin-left:6px;padding:8px;border-radius:8px;background:#22c55e;border:none;color:#052e16;font-weight:800;}
-
-.eye{position:absolute;right:12px;top:32px;cursor:pointer}
-.passbox{position:relative}
+.plus{width:36px;margin-left:6px;border-radius:8px;background:#22c55e;border:none;color:#052e16;font-weight:800}
 
 .top-tabs{display:flex;gap:8px;margin-bottom:10px;}
 .top-tabs button{flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text);font-weight:600;}
@@ -43,11 +39,9 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 .card.saldo{grid-column:1/3;text-align:center;}
 
 .item{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:.78rem;}
-.valor{text-align:right;min-width:80px;}
-.valor.rec{color:var(--primary);} .valor.desp{color:var(--danger);}
-.actions{display:flex;gap:4px;}
-.actions button{font-size:.6rem;border:none;border-radius:6px;padding:4px 6px;}
-.pay{background:#22c55e;} .back{background:#3b82f6;color:#fff;} .edit{background:#f59e0b;} .del{background:#ef4444;color:#fff;}
+.valor.rec{color:var(--primary)} .valor.desp{color:var(--danger)}
+.actions button{border:none;border-radius:6px;padding:4px 6px;font-size:.7rem}
+.pay{background:#22c55e;color:#052e16} .del{background:#ef4444;color:#fff}
 </style>
 </head>
 
@@ -58,30 +52,12 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 <div id="loginScreen">
 <h1>🔐 Finanças em Dia</h1>
 <div class="box">
-
-<div class="field"><label>Email</label><input id="emailLogin" type="email"></div>
-
-<div class="field passbox"><label>Senha</label>
-<input id="senhaLogin" type="password"><span class="eye" onclick="toggle('senhaLogin')">👁</span></div>
-
+<div class="field"><label>Email</label><input id="emailLogin"></div>
+<div class="field"><label>Senha</label><input id="senhaLogin" type="password"></div>
 <button class="main" id="btnLogin">Entrar</button>
-<button class="sec" onclick="showCadastro()">Primeiro acesso</button>
 <button class="sec" id="btnReset">Esqueci minha senha</button>
-
 <hr style="margin:14px 0;border-color:#1e293b">
 <button class="main" id="btnGoogle">Entrar com Google</button>
-</div>
-</div>
-
-<!-- CADASTRO -->
-<div id="cadastroScreen" class="hidden">
-<h1>📝 Criar Conta</h1>
-<div class="box">
-<div class="field"><label>Email</label><input id="emailCad" type="email"></div>
-<div class="field passbox"><label>Senha</label><input id="senhaCad" type="password"><span class="eye" onclick="toggle('senhaCad')">👁</span></div>
-<div class="field passbox"><label>Confirmar Senha</label><input id="senhaConf" type="password"><span class="eye" onclick="toggle('senhaConf')">👁</span></div>
-<button class="main" id="btnCadastrar">Cadastrar</button>
-<button class="sec" onclick="showLogin()">Voltar</button>
 </div>
 </div>
 
@@ -89,11 +65,10 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 <div id="appScreen" class="hidden">
 
 <h1>💰 Finanças em Dia</h1>
-<button class="sec" id="btnLogout">Sair</button>
 
 <div class="top-tabs">
-<button id="tabMes" class="active" onclick="showMes()">Mês</button>
-<button id="tabAno" onclick="showAno()">Resumo Anual</button>
+<button id="tabMes" class="active">Mês</button>
+<button id="tabAno">Resumo Anual</button>
 </div>
 
 <div id="telaMes">
@@ -101,9 +76,9 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 <select id="mesSelecionado"></select>
 
 <div class="cards">
-<div class="card"><h3>Receitas</h3><div class="value" id="rMes">R$0</div></div>
-<div class="card"><h3>Despesas</h3><div class="value" id="dMes">R$0</div></div>
-<div class="card saldo"><h3>Saldo</h3><div class="value" id="sMes">R$0</div></div>
+<div class="card"><h3>Receitas</h3><div id="rMes" class="value">R$0</div></div>
+<div class="card"><h3>Despesas</h3><div id="dMes" class="value">R$0</div></div>
+<div class="card saldo"><h3>Saldo</h3><div id="sMes" class="value">R$0</div></div>
 </div>
 
 <div class="box">
@@ -113,62 +88,52 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 <select id="tipo"><option value="">Selecione</option><option value="receita">Receita</option><option value="despesa">Despesa</option></select></div>
 
 <div class="field"><label>Categoria</label>
-<div style="display:flex;">
+<div style="display:flex">
 <select id="categoria"></select>
-<button class="plus" onclick="novaCategoria()">+</button>
+<button class="plus" id="btnCat">+</button>
 </div></div>
 
-<div class="field"><label>Descrição</label><input id="desc"></div>
-<div class="field"><label>Valor Total</label><input id="valor" type="number" step="0.01"></div>
+<div class="field"><label>Valor</label><input id="valor" type="number"></div>
 <div class="field"><label>Data</label><input id="data" type="date"></div>
 
-<div class="field"><label>Tipo Lançamento</label>
-<select id="repete">
-<option value="">Selecione</option>
-<option value="unica">Única</option>
-<option value="fixa">Fixa</option>
-<option value="parcelada">Parcelada</option>
-</select></div>
-
-<div class="field hidden" id="parcelasBox"><label>Parcelas</label><input id="parcelas" type="number" value="2"></div>
-
-<button class="main" onclick="adicionar()">Adicionar</button>
+<button class="main" id="btnAdd">Adicionar</button>
 </div>
 
-<div class="box" id="listaMes"></div>
-<canvas id="graficoMes"></canvas>
+<div id="listaMes"></div>
+<canvas id="grafMes"></canvas>
 
 </div>
 
 <div id="telaAno" class="hidden">
 <div class="cards">
-<div class="card"><h3>Receitas Ano</h3><div class="value" id="rAno">R$0</div></div>
-<div class="card"><h3>Despesas Ano</h3><div class="value" id="dAno">R$0</div></div>
-<div class="card saldo"><h3>Saldo Ano</h3><div class="value" id="sAno">R$0</div></div>
+<div class="card"><h3>Receitas Ano</h3><div id="rAno" class="value">R$0</div></div>
+<div class="card"><h3>Despesas Ano</h3><div id="dAno" class="value">R$0</div></div>
+<div class="card saldo"><h3>Saldo Ano</h3><div id="sAno" class="value">R$0</div></div>
 </div>
-<canvas id="graficoAno"></canvas>
+<canvas id="grafAno"></canvas>
 </div>
 
+<button class="sec" id="btnLogout">Sair</button>
+
 </div>
+
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult,
-signInWithEmailAndPassword, createUserWithEmailAndPassword,
-sendPasswordResetEmail, onAuthStateChanged, signOut } 
+signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } 
 from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } 
+import { getFirestore, collection, addDoc, getDocs, query, onSnapshot }
 from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBAWyMjRVAODIVkC5w95nu9MliqNUMb8ZY",
-  authDomain: "controle-financeiro-dffee.firebaseapp.com",
-  projectId: "controle-financeiro-dffee",
-  storageBucket: "controle-financeiro-dffee.firebasestorage.app",
-  messagingSenderId: "470526358884",
-  appId: "1:470526358884:web:0dcd3dffb5c0924dadf671"
+apiKey: "AIzaSyBAWyMjRVAODIVkC5w95nu9MliqNUMb8ZY",
+authDomain: "controle-financeiro-dffee.firebaseapp.com",
+projectId: "controle-financeiro-dffee",
+storageBucket: "controle-financeiro-dffee.firebasestorage.app",
+messagingSenderId: "470526358884",
+appId: "1:470526358884:web:0dcd3dffb5c0924dadf671"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -176,89 +141,74 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-let userId=null;
-let dados=[];
-
-window.toggle=id=>{const i=document.getElementById(id);i.type=i.type==="password"?"text":"password";}
-window.showCadastro=()=>{loginScreen.classList.add("hidden");cadastroScreen.classList.remove("hidden");}
-window.showLogin=()=>{cadastroScreen.classList.add("hidden");loginScreen.classList.remove("hidden");}
-
-btnLogin.onclick=()=>signInWithEmailAndPassword(auth,emailLogin.value,senhaLogin.value);
-btnCadastrar.onclick=()=>createUserWithEmailAndPassword(auth,emailCad.value,senhaCad.value);
-btnReset.onclick=()=>sendPasswordResetEmail(auth,emailLogin.value);
+btnLogin.onclick=()=>signInWithEmailAndPassword(auth,emailLogin.value,senhaLogin.value).catch(e=>alert(e.message));
 btnGoogle.onclick=()=>signInWithRedirect(auth,provider);
-btnLogout.onclick=()=>signOut(auth);
-getRedirectResult(auth).catch(()=>{});
+btnReset.onclick=()=>sendPasswordResetEmail(auth,emailLogin.value).then(()=>alert("Email enviado"));
 
-onAuthStateChanged(auth,async u=>{
-if(u){
-userId=u.uid;
+btnLogout.onclick=()=>signOut(auth);
+
+let uid="", dados=[], categorias=[];
+
+onAuthStateChanged(auth, async user=>{
+if(!user){ appScreen.classList.add("hidden"); loginScreen.classList.remove("hidden"); return;}
+uid=user.uid;
 loginScreen.classList.add("hidden");
-cadastroScreen.classList.add("hidden");
 appScreen.classList.remove("hidden");
-await carregar();
-}else{
-appScreen.classList.add("hidden");
-showLogin();
-}
+carregarDados();
 });
+
+async function carregarDados(){
+onSnapshot(query(collection(db,"users",uid,"lancamentos")),snap=>{
+dados=snap.docs.map(d=>({...d.data(),id:d.id}));
+atualizarMes(); atualizarAno();
+});
+onSnapshot(query(collection(db,"users",uid,"categorias")),snap=>{
+categorias=snap.docs.map(d=>d.data().nome);
+if(!categorias.length) categorias=["Salário","Alimentação","Aluguel","Lazer"];
+categoria.innerHTML= categorias.map(c=>`<option>${c}</option>`).join("");
+});
+}
+
+btnCat.onclick=async()=>{
+let n=prompt("Nova categoria:");
+if(n) await addDoc(collection(db,"users",uid,"categorias"),{nome:n});
+}
+
+btnAdd.onclick=async()=>{
+if(!tipo.value||!categoria.value||!valor.value||!data.value) return alert("Preencha tudo");
+await addDoc(collection(db,"users",uid,"lancamentos"),{
+tipo:tipo.value, cat:categoria.value, valor:+valor.value,
+mes:new Date(data.value).getMonth(), status:"pago"
+});
+}
+
+function atualizarMes(){
+let m=mesSelecionado.value||new Date().getMonth();
+let r=0,d=0;
+listaMes.innerHTML="";
+dados.filter(i=>i.mes==m).forEach(i=>{
+i.tipo=="receita"?r+=i.valor:d+=i.valor;
+listaMes.innerHTML+=`<div class="item">
+<div>${i.cat}</div>
+<div class="valor ${i.tipo=="receita"?"rec":"desp"}">R$${i.valor}</div>
+</div>`;
+});
+rMes.innerText=`R$ ${r}`; dMes.innerText=`R$ ${d}`; sMes.innerText=`R$ ${r-d}`;
+}
+
+function atualizarAno(){
+let r=0,d=0;
+dados.forEach(i=>i.tipo=="receita"?r+=i.valor:d+=i.valor);
+rAno.innerText=`R$ ${r}`; dAno.innerText=`R$ ${d}`; sAno.innerText=`R$ ${r-d}`;
+}
 
 const meses=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 meses.forEach((m,i)=>mesSelecionado.innerHTML+=`<option value="${i}">${m}</option>`);
-mesSelecionado.value=new Date().getMonth();
-mesSelecionado.onchange=render;
+mesSelecionado.onchange=atualizarMes;
 
-repete.onchange=()=>parcelasBox.classList.toggle("hidden",repete.value!=="parcelada");
+tabMes.onclick=()=>{telaMes.classList.remove("hidden");telaAno.classList.add("hidden");tabMes.classList.add("active");tabAno.classList.remove("active");}
+tabAno.onclick=()=>{telaAno.classList.remove("hidden");telaMes.classList.add("hidden");tabAno.classList.add("active");tabMes.classList.remove("active");}
 
-async function carregar(){
-dados=[];
-const snap=await getDocs(collection(db,"users",userId,"lancamentos"));
-snap.forEach(d=>dados.push({...d.data(),id:d.id}));
-render();
-}
-
-async function adicionar(){
-if(!tipo.value||!categoria.value||!valor.value||!data.value||!repete.value) return alert("Preencha tudo");
-let mes=new Date(data.value).getMonth();
-let total=+valor.value;
-let grupo=Date.now()+"";
-let qtd=repete.value==="parcelada"?+parcelas.value:1;
-
-for(let i=0;i<qtd;i++){
-await addDoc(collection(db,"users",userId,"lancamentos"),{
-tipo:tipo.value,cat:categoria.value,desc:desc.value,mes:(mes+i)%12,
-valor:repete.value==="parcelada"?total/qtd:total,status:"pendente",
-grupo,parcela:i+1,total:qtd,fixed:repete.value==="fixa"
-});
-}
-carregar();
-}
-
-async function pagar(id){await updateDoc(doc(db,"users",userId,"lancamentos",id),{status:"pago"});carregar();}
-async function voltar(id){await updateDoc(doc(db,"users",userId,"lancamentos",id),{status:"pendente"});carregar();}
-async function excluir(id){await deleteDoc(doc(db,"users",userId,"lancamentos",id));carregar();}
-
-function render(){
-let m=+mesSelecionado.value,r=0,d=0,cat={};
-listaMes.innerHTML="";
-dados.filter(i=>i.mes===m).forEach(i=>{
-if(i.status==="pago"){i.tipo==="receita"?r+=i.valor:d+=i.valor;if(i.tipo==="despesa")cat[i.cat]=(cat[i.cat]||0)+i.valor;}
-listaMes.innerHTML+=`
-<div class="item">
-<div>${i.cat}<br><small>${i.desc||""}</small></div>
-<div class="valor ${i.tipo==="receita"?"rec":"desp"}">R$ ${i.valor.toFixed(2)}</div>
-<div class="actions">
-${i.status==="pendente"?`<button class="pay" onclick="pagar('${i.id}')">✔</button>`:`<button class="back" onclick="voltar('${i.id}')">↩</button>`}
-<button class="del" onclick="excluir('${i.id}')">✖</button>
-</div></div>`;
-});
-rMes.innerText="R$ "+r.toFixed(2);
-dMes.innerText="R$ "+d.toFixed(2);
-sMes.innerText="R$ "+(r-d).toFixed(2);
-}
-
-window.showMes=()=>{telaMes.classList.remove("hidden");telaAno.classList.add("hidden");}
-window.showAno=()=>{telaAno.classList.remove("hidden");telaMes.classList.add("hidden");}
 </script>
 </body>
 </html>
