@@ -17,6 +17,8 @@ body{margin:0;background:linear-gradient(180deg,#020617,#0f172a);color:var(--tex
 h1{text-align:center;margin:10px 0;font-size:1.4rem;}
 .hidden{display:none;}
 
+button{cursor:pointer}
+
 .top-tabs{display:flex;gap:8px;margin-bottom:10px;}
 .top-tabs button{flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text);font-weight:600;}
 .top-tabs button.active{background:linear-gradient(135deg,#22c55e,#16a34a);color:#052e16;}
@@ -168,13 +170,13 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import {
-getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult,
+getAuth, GoogleAuthProvider, signInWithPopup,
 signInWithEmailAndPassword, createUserWithEmailAndPassword,
 sendPasswordResetEmail, onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 import {
-getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc
+getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -193,20 +195,18 @@ const provider = new GoogleAuthProvider();
 
 let userId = null;
 let dados = [];
-let categorias = ["Salário","Alimentação","Aluguel","Transporte","Lazer"];
+let categorias = [];
 const meses=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
 window.toggle=id=>{const i=document.getElementById(id);i.type=i.type==="password"?"text":"password";}
 window.showCadastro=()=>{loginScreen.classList.add("hidden");cadastroScreen.classList.remove("hidden");}
 window.showLogin=()=>{cadastroScreen.classList.add("hidden");loginScreen.classList.remove("hidden");}
 
-btnLogin.onclick=()=>signInWithEmailAndPassword(auth,emailLogin.value,senhaLogin.value).catch(e=>alert(e.message));
-btnCadastrar.onclick=()=>{if(senhaCad.value!==senhaConf.value)return alert("Senhas diferentes");createUserWithEmailAndPassword(auth,emailCad.value,senhaCad.value).catch(e=>alert(e.message));}
-btnReset.onclick=()=>{if(!emailLogin.value)return alert("Digite o email");sendPasswordResetEmail(auth,emailLogin.value).then(()=>alert("Email enviado")).catch(e=>alert(e.message));}
-btnGoogle.onclick=()=>signInWithRedirect(auth,provider);
+btnLogin.onclick=()=>signInWithEmailAndPassword(auth,emailLogin.value,senhaLogin.value).catch(()=>alert("Email ou senha inválidos"));
+btnCadastrar.onclick=()=>{if(senhaCad.value!==senhaConf.value)return alert("As senhas não conferem");createUserWithEmailAndPassword(auth,emailCad.value,senhaCad.value).catch(()=>alert("Erro ao criar conta"));}
+btnReset.onclick=()=>{if(!emailLogin.value)return alert("Digite seu email");sendPasswordResetEmail(auth,emailLogin.value).then(()=>alert("Email enviado")).catch(()=>alert("Erro ao enviar email"));}
+btnGoogle.onclick=()=>signInWithPopup(auth,provider).catch(()=>alert("Erro no login com Google"));
 window.logout=()=>signOut(auth);
-
-getRedirectResult(auth).catch(()=>{});
 
 onAuthStateChanged(auth,async u=>{
 if(u){
@@ -214,6 +214,7 @@ userId=u.uid;
 loginScreen.classList.add("hidden");
 cadastroScreen.classList.add("hidden");
 appScreen.classList.remove("hidden");
+await carregarCategorias();
 await carregarDados();
 }else{
 appScreen.classList.add("hidden");
@@ -221,29 +222,41 @@ showLogin();
 }
 });
 
-async function carregarDados(){
-dados=[]; categorias=[...new Set(categorias)];
-const snap=await getDocs(collection(db,"users",userId,"lancamentos"));
-snap.forEach(d=>dados.push({id:d.id,...d.data()}));
-carregarCategorias(); atualizarMes(); atualizarAno();
+async function carregarCategorias(){
+categorias=[];
+const snap=await getDocs(collection(db,"users",userId,"categorias"));
+snap.forEach(d=>categorias.push(d.data().nome));
+if(categorias.length===0){
+["Salário","Alimentação","Aluguel","Transporte","Lazer"].forEach(async c=>{
+ await addDoc(collection(db,"users",userId,"categorias"),{nome:c});
+});
+return carregarCategorias();
 }
-
-function carregarCategorias(){
 categoria.innerHTML='<option value="">Selecione</option>';
 categorias.forEach(c=>{let o=document.createElement("option");o.text=c;o.value=c;categoria.appendChild(o);});
 }
 
-window.novaCategoria=()=>{
+window.novaCategoria=async()=>{
 const n=prompt("Nova categoria:");
-if(n && !categorias.includes(n)){categorias.push(n);carregarCategorias();}
+if(n){
+await addDoc(collection(db,"users",userId,"categorias"),{nome:n});
+carregarCategorias();
+}
+}
+
+async function carregarDados(){
+dados=[];
+const snap=await getDocs(collection(db,"users",userId,"lancamentos"));
+snap.forEach(d=>dados.push({id:d.id,...d.data()}));
+atualizarMes(); atualizarAno();
 }
 
 repete.onchange=()=>parcelasBox.classList.toggle("hidden",repete.value!=="parcelada");
 
 window.adicionar=async()=>{
-if(!tipo.value||!categoria.value||!valor.value||!data.value||!repete.value)return alert("Preencha tudo");
+if(!tipo.value||!categoria.value||!valor.value||!data.value||!repete.value)return alert("Preencha todos os campos");
 let mesBase=new Date(data.value).getMonth();
-let grupo=Date.now()+Math.random();
+let grupo=Date.now()+"";
 let base={tipo:tipo.value,cat:categoria.value,desc:desc.value,mes:mesBase,grupo,status:"pendente"};
 let valorTotal=+valor.value;
 
@@ -255,19 +268,29 @@ let p=+parcelas.value, vp=valorTotal/p;
 for(let i=0;i<p;i++)await salvar({...base,mes:(mesBase+i)%12,valor:vp,parcela:i+1,total:p});
 }else await salvar({...base,valor:valorTotal});
 
+desc.value=""; valor.value=""; repete.value=""; parcelas.value=2;
+
 await carregarDados();
+};
+
+window.excluir=async id=>{
+let item=dados.find(i=>i.id===id);
+const q=query(collection(db,"users",userId,"lancamentos"),where("grupo","==",item.grupo),where("status","==","pendente"));
+const snap=await getDocs(q);
+for(const d of snap.docs) await deleteDoc(d.ref);
+await deleteDoc(doc(db,"users",userId,"lancamentos",id));
+carregarDados();
 };
 
 window.pagar=async id=>{await updateDoc(doc(db,"users",userId,"lancamentos",id),{status:"pago"});carregarDados();}
 window.voltar=async id=>{await updateDoc(doc(db,"users",userId,"lancamentos",id),{status:"pendente"});carregarDados();}
-window.excluir=async id=>{await deleteDoc(doc(db,"users",userId,"lancamentos",id));carregarDados();}
 window.editar=async id=>{
 let l=dados.find(i=>i.id===id); let nv=prompt("Novo valor:",l.valor); if(!nv)return;
 await updateDoc(doc(db,"users",userId,"lancamentos",id),{valor:+nv});carregarDados();
 };
 
-let grafMes=new Chart(graficoMes,{type:'pie',data:{labels:[],datasets:[{data:[]}]}}); 
-let grafAno=new Chart(graficoAno,{type:'bar',data:{labels:meses,datasets:[{label:'Receitas',data:[]},{label:'Despesas',data:[]}]}});
+let grafMes=new Chart(graficoMes,{type:'pie',data:{labels:[],datasets:[{data:[],backgroundColor:["#22c55e","#3b82f6","#f59e0b","#ef4444","#a855f7","#14b8a6"]}]}}); 
+let grafAno=new Chart(graficoAno,{type:'bar',data:{labels:meses,datasets:[{label:'Receitas',data:[],backgroundColor:"#22c55e"},{label:'Despesas',data:[],backgroundColor:"#ef4444"}]}});
 
 window.atualizarMes=()=>{
 let r=0,d=0,cat={}; listaMes.innerHTML="<h2>Lançamentos</h2>";
