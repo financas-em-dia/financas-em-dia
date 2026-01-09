@@ -17,10 +17,15 @@ body{margin:0;background:linear-gradient(180deg,#020617,#0f172a);color:var(--tex
 .container{max-width:480px;margin:auto;}
 h1{text-align:center;margin:10px 0;font-size:1.4rem;}
 .hidden{display:none;}
-
 button{cursor:pointer}
 
-.box{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:30px;}
+.box{
+background:rgba(255,255,255,0.04);
+border:1px solid var(--border);
+border-radius:14px;
+padding:16px;
+margin-top:20px;
+}
 
 input,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--input);color:var(--text);}
 label{font-size:.75rem;color:var(--muted);}
@@ -31,8 +36,6 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 
 .eye{position:absolute;right:12px;top:32px;cursor:pointer}
 .passbox{position:relative}
-
-/* APP */
 
 .top-tabs{display:flex;gap:8px;margin-bottom:10px;}
 .top-tabs button{flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text);font-weight:600;}
@@ -46,7 +49,15 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 
 .form,.list,.chart-box{margin-top:15px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;padding:14px;}
 
-.item{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:.78rem;}
+.plus{width:36px;margin-left:6px;padding:8px;border-radius:8px;background:#22c55e;border:none;color:#052e16;font-weight:800;}
+
+.item{
+display:grid;
+grid-template-columns:1fr auto auto;
+gap:6px;
+align-items:center;
+padding:8px 0;border-bottom:1px solid var(--border);font-size:.78rem;
+}
 .item:last-child{border-bottom:none;}
 .cat{color:var(--muted);font-size:.7rem;}
 .valor{text-align:right;min-width:80px;}
@@ -67,25 +78,13 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 <div id="loginScreen">
 <h1>🔐 Finanças em Dia</h1>
 <div class="box">
-
-<div class="field">
-<label>Email</label>
-<input id="emailLogin" type="email">
-</div>
-
-<div class="field passbox">
-<label>Senha</label>
-<input id="senhaLogin" type="password">
-<span class="eye" onclick="toggle('senhaLogin')">👁</span>
-</div>
-
+<div class="field"><label>Email</label><input id="emailLogin" type="email"></div>
+<div class="field passbox"><label>Senha</label><input id="senhaLogin" type="password"><span class="eye" onclick="toggle('senhaLogin')">👁</span></div>
 <button class="main" id="btnLogin">Entrar</button>
 <button class="sec" onclick="showCadastro()">Primeiro acesso</button>
 <button class="sec" id="btnReset">Esqueci minha senha</button>
-
 <hr style="margin:14px 0;border-color:#1e293b">
 <button class="main" id="btnGoogle">Entrar com Google</button>
-
 </div>
 </div>
 
@@ -93,33 +92,18 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 <div id="cadastroScreen" class="hidden">
 <h1>📝 Criar Conta</h1>
 <div class="box">
-
-<div class="field">
-<label>Email</label>
-<input id="emailCad" type="email">
-</div>
-
-<div class="field passbox">
-<label>Senha</label>
-<input id="senhaCad" type="password">
-<span class="eye" onclick="toggle('senhaCad')">👁</span>
-</div>
-
-<div class="field passbox">
-<label>Confirmar Senha</label>
-<input id="senhaConf" type="password">
-<span class="eye" onclick="toggle('senhaConf')">👁</span>
-</div>
-
+<div class="field"><label>Email</label><input id="emailCad" type="email"></div>
+<div class="field passbox"><label>Senha</label><input id="senhaCad" type="password"><span class="eye" onclick="toggle('senhaCad')">👁</span></div>
+<div class="field passbox"><label>Confirmar Senha</label><input id="senhaConf" type="password"><span class="eye" onclick="toggle('senhaConf')">👁</span></div>
 <button class="main" id="btnCadastrar">Cadastrar</button>
 <button class="sec" onclick="showLogin()">Voltar</button>
-
 </div>
 </div>
 
-<!-- APP -->
+<!-- APP FINANCEIRO -->
 <div id="appScreen" class="hidden">
-<h1>💰 Finanças em Dia</h1>
+
+<h1>💰 Controle Financeiro</h1>
 
 <div class="top-tabs">
 <button id="tabMes" class="active" onclick="showMes()">Mês</button>
@@ -137,31 +121,41 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 </div>
 
 <div class="form">
-<h2>Novo Lançamento</h2>
+<h3>Novo Lançamento</h3>
 
+<div class="field">
+<label>Tipo</label>
 <select id="tipo">
-<option value="">Tipo</option>
+<option value="">Selecione</option>
 <option value="receita">Receita</option>
 <option value="despesa">Despesa</option>
 </select>
-
-<div style="display:flex;gap:6px;">
-<select id="categoria"></select>
-<button onclick="novaCategoria()">+</button>
 </div>
 
-<input id="desc" placeholder="Descrição">
-<input id="valor" type="number" placeholder="Valor">
-<input id="data" type="date">
+<div class="field">
+<label>Categoria</label>
+<div style="display:flex;">
+<select id="categoria"></select>
+<button class="plus" onclick="novaCategoria()">+</button>
+</div>
+</div>
 
+<div class="field"><label>Descrição</label><input id="desc"></div>
+<div class="field"><label>Valor</label><input id="valor" type="number" step="0.01"></div>
+<div class="field"><label>Data</label><input id="data" type="date"></div>
+
+<div class="field">
+<label>Tipo de Lançamento</label>
 <select id="repete">
-<option value="">Tipo</option>
-<option value="variavel">Única</option>
+<option value="">Selecione</option>
+<option value="variavel">Único</option>
 <option value="fixa">Fixa</option>
 <option value="parcelada">Parcelada</option>
 </select>
+</div>
 
-<div id="parcelasBox" class="hidden">
+<div class="field hidden" id="parcelasBox">
+<label>Parcelas</label>
 <input id="parcelas" type="number" value="2">
 </div>
 
@@ -174,6 +168,11 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 </div>
 
 <div id="telaAno" class="hidden">
+<div class="cards">
+<div class="card"><h3>Receitas</h3><div class="value" id="rAno">R$0</div></div>
+<div class="card"><h3>Despesas</h3><div class="value" id="dAno">R$0</div></div>
+<div class="card saldo"><h3>Saldo</h3><div class="value" id="sAno">R$0</div></div>
+</div>
 <div class="chart-box"><canvas id="graficoAno"></canvas></div>
 </div>
 
@@ -184,24 +183,27 @@ button.sec{width:100%;padding:10px;border:1px solid var(--border);border-radius:
 
 <!-- FIREBASE + APP -->
 <script type="module">
+
+/* FIREBASE IMPORTS */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import {
-getAuth, GoogleAuthProvider, signInWithPopup,
-signInWithEmailAndPassword, createUserWithEmailAndPassword,
-sendPasswordResetEmail, onAuthStateChanged, signOut
+  getAuth, GoogleAuthProvider, signInWithPopup,
+  signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  sendPasswordResetEmail, onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 import {
-getFirestore, collection, addDoc, getDocs, deleteDoc, doc
+  getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+/* CONFIG */
 const firebaseConfig = {
-apiKey: "AIzaSyBAWyMjRVAODIVkC5w95nu9MliqNUMb8ZY",
-authDomain: "controle-financeiro-dffee.firebaseapp.com",
-projectId: "controle-financeiro-dffee",
-storageBucket: "controle-financeiro-dffee.firebasestorage.app",
-messagingSenderId: "470526358884",
-appId: "1:470526358884:web:0dcd3dffb5c0924dadf671"
+  apiKey: "AIzaSyBAWyMjRVAODIVkC5w95nu9MliqNUMb8ZY",
+  authDomain: "controle-financeiro-dffee.firebaseapp.com",
+  projectId: "controle-financeiro-dffee",
+  storageBucket: "controle-financeiro-dffee.firebasestorage.app",
+  messagingSenderId: "470526358884",
+  appId: "1:470526358884:web:0dcd3dffb5c0924dadf671"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -209,35 +211,160 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-function traduzErro(e){
-if(e.code==="auth/invalid-email") return "Email inválido.";
-if(e.code==="auth/wrong-password") return "Senha incorreta.";
-if(e.code==="auth/user-not-found") return "Usuário não encontrado.";
-if(e.code==="auth/email-already-in-use") return "Email já cadastrado.";
-return "Erro ao autenticar.";
-}
+/* ================= LOGIN ================= */
 
 window.toggle=id=>{
-const i=document.getElementById(id);
-i.type=i.type==="password"?"text":"password";
+  const i=document.getElementById(id);
+  i.type=i.type==="password"?"text":"password";
 }
 
-window.showCadastro=()=>{loginScreen.classList.add("hidden");cadastroScreen.classList.remove("hidden");}
-window.showLogin=()=>{cadastroScreen.classList.add("hidden");loginScreen.classList.remove("hidden");}
+window.showCadastro=()=>{
+  loginScreen.classList.add("hidden");
+  cadastroScreen.classList.remove("hidden");
+}
+window.showLogin=()=>{
+  cadastroScreen.classList.add("hidden");
+  loginScreen.classList.remove("hidden");
+}
 
-btnLogin.onclick=()=>signInWithEmailAndPassword(auth,emailLogin.value,senhaLogin.value).catch(e=>alert(traduzErro(e)));
-btnCadastrar.onclick=()=>createUserWithEmailAndPassword(auth,emailCad.value,senhaCad.value).catch(e=>alert(traduzErro(e)));
-btnReset.onclick=()=>sendPasswordResetEmail(auth,emailLogin.value).then(()=>alert("Email enviado."));
+btnLogin.onclick=()=>signInWithEmailAndPassword(auth,emailLogin.value,senhaLogin.value).catch(e=>alert(e.message));
+btnCadastrar.onclick=()=>{
+  if(senhaCad.value!==senhaConf.value) return alert("As senhas não conferem.");
+  createUserWithEmailAndPassword(auth,emailCad.value,senhaCad.value).catch(e=>alert(e.message));
+};
+btnReset.onclick=()=>{
+  if(!emailLogin.value) return alert("Digite seu email.");
+  sendPasswordResetEmail(auth,emailLogin.value).then(()=>alert("Email enviado."));
+};
 btnGoogle.onclick=()=>signInWithPopup(auth,provider);
 btnLogout.onclick=()=>signOut(auth);
 
-onAuthStateChanged(auth,user=>{
-if(user){loginScreen.classList.add("hidden");cadastroScreen.classList.add("hidden");appScreen.classList.remove("hidden");}
-else{appScreen.classList.add("hidden");showLogin();}
+/* ================= DADOS ================= */
+
+let userId=null;
+let dados=[];
+let categorias=[];
+
+const meses=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
+meses.forEach((m,i)=>{
+  let o=document.createElement("option");
+  o.value=i;o.text=m;
+  if(i===new Date().getMonth())o.selected=true;
+  mesSelecionado.appendChild(o);
 });
+
+repete.onchange=()=>parcelasBox.classList.toggle("hidden",repete.value!=="parcelada");
+data.valueAsDate=new Date();
+
+/* ================= FIRESTORE ================= */
+
+async function carregarTudo(){
+  dados=[]; categorias=[];
+  const catSnap=await getDocs(collection(db,"users",userId,"categorias"));
+  catSnap.forEach(d=>categorias.push({id:d.id,...d.data()}));
+
+  const lanSnap=await getDocs(collection(db,"users",userId,"lancamentos"));
+  lanSnap.forEach(d=>dados.push({id:d.id,...d.data()}));
+
+  carregarCategorias();
+  atualizarMes(); atualizarAno();
+}
+
+function carregarCategorias(){
+  categoria.innerHTML='<option value="">Selecione</option>';
+  categorias.forEach(c=>{
+    let o=document.createElement("option");
+    o.value=c.nome; o.text=c.nome;
+    categoria.appendChild(o);
+  });
+}
+
+async function novaCategoria(){
+  const n=prompt("Nova categoria:");
+  if(!n) return;
+  await addDoc(collection(db,"users",userId,"categorias"),{nome:n});
+  carregarTudo();
+}
+
+async function adicionar(){
+  if(!tipo.value||!categoria.value||!valor.value||!data.value||!repete.value) return alert("Preencha tudo.");
+
+  let mesBase=new Date(data.value).getMonth();
+  let grupo=Date.now()+Math.random();
+  let base={tipo:tipo.value,cat:categoria.value,desc:desc.value,grupo,status:"pendente"};
+
+  let total=+valor.value;
+
+  if(repete.value==="fixa"){
+    for(let m=mesBase;m<12;m++)
+      await addDoc(collection(db,"users",userId,"lancamentos"),{...base,mes:m,valor:total,fixed:true});
+  }else if(repete.value==="parcelada"){
+    let p=+parcelas.value, v=total/p;
+    for(let i=0;i<p;i++)
+      await addDoc(collection(db,"users",userId,"lancamentos"),{...base,mes:(mesBase+i)%12,valor:v,parcela:i+1,total:p});
+  }else{
+    await addDoc(collection(db,"users",userId,"lancamentos"),{...base,mes:mesBase,valor:total});
+  }
+
+  tipo.value=categoria.value=desc.value=valor.value=repete.value="";
+  parcelas.value=2; parcelasBox.classList.add("hidden");
+  carregarTudo();
+}
+
+/* ======= GRÁFICOS E LISTAS ======= */
+/* (mantidos iguais ao seu código antigo) */
+
+let grafMes=new Chart(graficoMes,{type:'pie',data:{labels:[],datasets:[{data:[],backgroundColor:['#22c55e','#ef4444','#3b82f6','#f59e0b','#a855f7','#14b8a6']}]}});
+
+let grafAno=new Chart(graficoAno,{type:'bar',data:{labels:meses,datasets:[{label:'Receitas',data:[],backgroundColor:'#22c55e'},{label:'Despesas',data:[],backgroundColor:'#ef4444'}]}});
+
+function atualizarMes(){
+  let r=0,d=0,cat={};
+  listaMes.innerHTML="";
+  dados.filter(i=>i.mes==mesSelecionado.value).forEach(i=>{
+    if(i.status==="pago"){ i.tipo==="receita"?r+=i.valor:d+=i.valor; if(i.tipo==="despesa") cat[i.cat]=(cat[i.cat]||0)+i.valor;}
+    let div=document.createElement("div");
+    div.className="item";
+    div.innerHTML=`<div>${i.cat}<br><span class="cat">${i.desc||""}</span></div><div class="valor ${i.tipo==='receita'?'rec':'desp'}">R$ ${i.valor.toFixed(2)}</div><div></div>`;
+    listaMes.appendChild(div);
+  });
+  rMes.innerText=`R$ ${r.toFixed(2)}`; dMes.innerText=`R$ ${d.toFixed(2)}`; sMes.innerText=`R$ ${(r-d).toFixed(2)}`;
+  grafMes.data.labels=Object.keys(cat); grafMes.data.datasets[0].data=Object.values(cat); grafMes.update();
+}
+
+function atualizarAno(){
+  let rM=Array(12).fill(0),dM=Array(12).fill(0),r=0,d=0;
+  dados.filter(i=>i.status==="pago").forEach(i=>{i.tipo==="receita"?(r+=i.valor,rM[i.mes]+=i.valor):(d+=i.valor,dM[i.mes]+=i.valor);});
+  rAno.innerText=`R$ ${r.toFixed(2)}`; dAno.innerText=`R$ ${d.toFixed(2)}`; sAno.innerText=`R$ ${(r-d).toFixed(2)}`;
+  grafAno.data.datasets[0].data=rM; grafAno.data.datasets[1].data=dM; grafAno.update();
+}
+
+window.showMes=()=>{telaMes.classList.remove("hidden");telaAno.classList.add("hidden");tabMes.classList.add("active");tabAno.classList.remove("active");}
+window.showAno=()=>{telaAno.classList.remove("hidden");telaMes.classList.add("hidden");tabAno.classList.add("active");tabMes.classList.remove("active");}
+
+mesSelecionado.onchange=atualizarMes;
+
+/* ================= AUTH STATE ================= */
+
+onAuthStateChanged(auth,async user=>{
+  if(user){
+    userId=user.uid;
+    loginScreen.classList.add("hidden");
+    cadastroScreen.classList.add("hidden");
+    appScreen.classList.remove("hidden");
+    await carregarTudo();
+  }else{
+    appScreen.classList.add("hidden");
+    showLogin();
+  }
+});
+
 </script>
 </body>
 </html>
+
+
 
 
 
