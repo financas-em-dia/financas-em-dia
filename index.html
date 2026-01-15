@@ -8,76 +8,231 @@
 
   <style>
     :root{
-      --bg:#0f172a;--card:#020617;--primary:#22c55e;--danger:#ef4444;
-      --text:#e5e7eb;--muted:#94a3b8;--input:#020617;--border:#1e293b;
+      --bg1:#020617;
+      --bg2:#0b1224;
+      --card: rgba(255,255,255,0.05);
+      --card2: rgba(255,255,255,0.07);
+      --border: rgba(148,163,184,0.18);
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --primary:#22c55e;
+      --danger:#ef4444;
+      --warn:#f59e0b;
+      --blue:#3b82f6;
+      --shadow: 0 10px 35px rgba(0,0,0,0.35);
     }
-    *{box-sizing:border-box;font-family:system-ui;}
-    body{margin:0;background:linear-gradient(180deg,#020617,#0f172a);color:var(--text);padding:12px;}
-    .container{max-width:520px;margin:auto;}
-    h1{text-align:center;margin:10px 0;font-size:1.4rem;}
+
+    *{box-sizing:border-box;font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 500px at 10% -10%, rgba(34,197,94,0.18), transparent 60%),
+                  radial-gradient(900px 500px at 110% 0%, rgba(59,130,246,0.16), transparent 55%),
+                  linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:var(--text);
+      padding:14px;
+    }
+
+    .container{max-width:560px;margin:auto;}
+    h1{text-align:center;margin:10px 0 12px;font-size:1.35rem;letter-spacing:.2px;}
     h2{margin:0 0 10px 0;font-size:1.05rem;}
     .hidden{display:none;}
     button{cursor:pointer}
 
     .box,.form,.list,.chart-box{
-      margin-top:15px;background:rgba(255,255,255,0.03);
-      border:1px solid var(--border);border-radius:14px;padding:14px;
+      margin-top:14px;
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
     }
+
     .field{margin-bottom:10px;}
-    label{font-size:.75rem;color:var(--muted);display:block;margin-bottom:4px;}
-    select,input{
-      width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);
-      background:var(--input);color:var(--text);
-    }
-    input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);}
-    .passbox{position:relative}
-    .eye{position:absolute;right:12px;top:32px;cursor:pointer}
+    label{font-size:.78rem;color:var(--muted);display:block;margin-bottom:6px;}
 
-    .top-tabs{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
-    .top-tabs button{
-      flex:1;min-width:120px;padding:10px;border-radius:12px;border:1px solid var(--border);
-      background:rgba(255,255,255,0.05);color:var(--text);font-weight:600;
+    input,select{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(2,6,23,0.45);
+      color: var(--text);
+      outline:none;
     }
-    .top-tabs button.active{background:linear-gradient(135deg,#22c55e,#16a34a);color:#052e16;}
-
-    .mes-box{text-align:center;margin-bottom:10px;}
-    .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    .card{
-      background:rgba(255,255,255,0.03);border:1px solid var(--border);
-      border-radius:14px;padding:12px;
+    input:focus,select:focus{
+      border-color: rgba(34,197,94,0.55);
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.12);
     }
-    .card h3{font-size:.75rem;color:var(--muted);margin:0 0 6px;}
-    .card .value{font-size:1.1rem;font-weight:600;}
-    .card.saldo{grid-column:1/3;text-align:center;}
-
-    button.main{
-      width:100%;padding:12px;border:none;border-radius:12px;
-      background:linear-gradient(135deg,#22c55e,#16a34a);color:#052e16;font-weight:700;
-    }
-    button.sec{
-      width:100%;padding:10px;border:1px solid var(--border);border-radius:12px;
-      background:transparent;color:var(--text);margin-top:6px;
-    }
-    .plus{width:36px;margin-left:6px;padding:8px;border-radius:8px;background:#22c55e;border:none;color:#052e16;font-weight:800;}
-
-    .item{
-      display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:center;
-      padding:8px 0;border-bottom:1px solid var(--border);font-size:.78rem;
-    }
-    .item:last-child{border-bottom:none;}
-    .cat{color:var(--muted);font-size:.7rem;}
-    .valor{text-align:right;min-width:90px;}
-    .valor.rec{color:var(--primary);} .valor.desp{color:var(--danger);}
-    .actions{display:flex;gap:4px;}
-    .actions button{font-size:.6rem;border:none;border-radius:6px;padding:4px 6px;}
-    .pay{background:#22c55e;color:#052e16;}
-    .back{background:#3b82f6;color:#fff;}
-    .edit{background:#f59e0b;color:#000;}
-    .del{background:#ef4444;color:#fff;}
+    input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.85;}
 
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    .hint{font-size:.75rem;color:var(--muted);line-height:1.35}
-    .pill{display:inline-block;padding:3px 8px;border:1px solid var(--border);border-radius:999px;font-size:.7rem;color:var(--muted)}
+    .mes-box{margin-bottom:10px;}
+
+    .top-tabs{
+      display:flex;
+      gap:8px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .top-tabs button{
+      flex:1;
+      min-width:120px;
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-weight:800;
+      transition: transform .08s ease, background .2s ease;
+    }
+    .top-tabs button:hover{transform: translateY(-1px);}
+    .top-tabs button.active{
+      background: linear-gradient(135deg, rgba(34,197,94,0.95), rgba(22,163,74,0.95));
+      color:#052e16;
+      border-color: transparent;
+    }
+
+    .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+    .card{
+      background: var(--card2);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px;
+    }
+    .card.saldo{grid-column:1/3;text-align:center;}
+    .card h3{font-size:.78rem;color:var(--muted);margin:0 0 8px;}
+    .card .value{font-size:1.25rem;font-weight:900;letter-spacing:.2px;}
+    .card .sub{font-size:.78rem;color:var(--muted);margin-top:4px}
+
+    button.main{
+      width:100%;
+      padding:12px 14px;
+      border:none;
+      border-radius:16px;
+      background: linear-gradient(135deg, rgba(34,197,94,1), rgba(22,163,74,1));
+      color:#052e16;
+      font-weight:950;
+    }
+    button.sec{
+      width:100%;
+      padding:11px 14px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-weight:800;
+      margin-top:8px;
+    }
+    .plus{
+      width:44px;margin-left:8px;padding:10px;border-radius:14px;
+      background: rgba(34,197,94,1);border:none;color:#052e16;font-weight:950;
+    }
+
+    .pill{
+      display:inline-flex;
+      gap:6px;
+      align-items:center;
+      padding:6px 10px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      font-size:.78rem;
+      color: var(--muted);
+    }
+    .mini{font-size:.78rem;color:var(--muted);line-height:1.35}
+
+    /* LANÇAMENTOS */
+    .tx{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+      align-items:center;
+      padding:12px 0;
+      border-bottom:1px solid rgba(148,163,184,0.14);
+    }
+    .tx:last-child{border-bottom:none;}
+    .tx .title{font-weight:900;font-size:.93rem}
+    .tx .meta{font-size:.78rem;color:var(--muted);margin-top:2px}
+    .tx .right{display:flex;align-items:center;gap:10px;}
+    .amount{
+      font-weight:950;
+      min-width:115px;
+      text-align:right;
+      font-variant-numeric: tabular-nums;
+    }
+    .amount.rec{color:var(--primary);}
+    .amount.desp{color:var(--danger);}
+
+    .menuBtn{
+      width:42px;height:40px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-size:18px;
+      line-height:0;
+    }
+    .menuBtn:hover{background: rgba(255,255,255,0.07);}
+
+    .menuWrap{position:relative;}
+    .menu{
+      position:absolute;
+      right:0; top:46px;
+      width:195px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(2,6,23,0.92);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      z-index:30;
+    }
+    .menu button{
+      width:100%;
+      text-align:left;
+      padding:10px 12px;
+      border:none;
+      background:transparent;
+      color: var(--text);
+      font-weight:850;
+      font-size:.85rem;
+    }
+    .menu button:hover{background: rgba(255,255,255,0.06);}
+    .menu .ok{color: var(--primary);}
+    .menu .undo{color: var(--blue);}
+    .menu .edit{color: var(--warn);}
+    .menu .del{color: var(--danger);}
+
+    /* CONTAS */
+    .accountsGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px;}
+    .acc{
+      background: var(--card2);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:14px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .acc .name{font-weight:950}
+    .acc .type{font-size:.78rem;color:var(--muted);margin-top:2px}
+    .acc .bal{font-weight:1000;font-size:1.18rem;font-variant-numeric: tabular-nums;}
+    .acc .bal.pos{color:var(--primary);}
+    .acc .bal.neg{color:var(--danger);}
+
+    /* TRANSFERÊNCIAS */
+    .tr{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:center;
+      padding:12px 0;
+      border-bottom:1px solid rgba(148,163,184,0.14);
+    }
+    .tr:last-child{border-bottom:none;}
+    .tr .title{font-weight:900;font-size:.92rem}
+    .tr .meta{font-size:.78rem;color:var(--muted);margin-top:2px}
+    .tr .val{font-weight:950;min-width:115px;text-align:right;font-variant-numeric: tabular-nums;}
   </style>
 </head>
 
@@ -88,16 +243,15 @@
     <div id="loginScreen">
       <h1>🔐 Finanças em Dia</h1>
       <div class="box">
-        <div class="field"><label>Email</label><input id="emailLogin" type="email"></div>
+        <div class="field"><label>Email</label><input id="emailLogin" type="email" autocomplete="email"></div>
         <div class="field passbox">
           <label>Senha</label>
-          <input id="senhaLogin" type="password">
-          <span class="eye" onclick="toggle('senhaLogin')">👁</span>
+          <input id="senhaLogin" type="password" autocomplete="current-password">
         </div>
         <button class="main" id="btnLogin">Entrar</button>
         <button class="sec" onclick="showCadastro()">Primeiro acesso</button>
         <button class="sec" id="btnReset">Esqueci minha senha</button>
-        <hr style="margin:14px 0;border-color:#1e293b">
+        <hr style="margin:14px 0;border-color:rgba(148,163,184,0.25)">
         <button class="main" id="btnGoogle">Entrar com Google</button>
       </div>
     </div>
@@ -106,17 +260,9 @@
     <div id="cadastroScreen" class="hidden">
       <h1>📝 Criar Conta</h1>
       <div class="box">
-        <div class="field"><label>Email</label><input id="emailCad" type="email"></div>
-        <div class="field passbox">
-          <label>Senha</label>
-          <input id="senhaCad" type="password">
-          <span class="eye" onclick="toggle('senhaCad')">👁</span>
-        </div>
-        <div class="field passbox">
-          <label>Confirmar Senha</label>
-          <input id="senhaConf" type="password">
-          <span class="eye" onclick="toggle('senhaConf')">👁</span>
-        </div>
+        <div class="field"><label>Email</label><input id="emailCad" type="email" autocomplete="email"></div>
+        <div class="field"><label>Senha</label><input id="senhaCad" type="password" autocomplete="new-password"></div>
+        <div class="field"><label>Confirmar Senha</label><input id="senhaConf" type="password" autocomplete="new-password"></div>
         <button class="main" id="btnCadastrar">Cadastrar</button>
         <button class="sec" onclick="showLogin()">Voltar</button>
       </div>
@@ -135,14 +281,17 @@
 
       <!-- TELA MÊS -->
       <div id="telaMes">
-        <div class="mes-box">
-          <select id="mesSelecionado" onchange="renderMes()"></select>
+        <div class="box">
+          <div class="field">
+            <label>Mês</label>
+            <select id="mesSelecionado" onchange="renderMes()"></select>
+          </div>
         </div>
 
         <div class="cards">
           <div class="card"><h3>Receitas Pagas</h3><div class="value" id="rMes">R$0</div></div>
           <div class="card"><h3>Despesas Pagas</h3><div class="value" id="dMes">R$0</div></div>
-          <div class="card saldo"><h3>Saldo</h3><div class="value" id="sMes">R$0</div></div>
+          <div class="card saldo"><h3>Saldo do Mês</h3><div class="value" id="sMes">R$0</div><div class="sub">Receitas - Despesas (pagas)</div></div>
         </div>
 
         <div class="form">
@@ -166,15 +315,16 @@
 
           <div class="field">
             <label>Categoria</label>
-            <div style="display:flex;">
+            <div style="display:flex;align-items:center;">
               <select id="categoria"></select>
-              <button class="plus" onclick="novaCategoria()">+</button>
+              <button class="plus" onclick="novaCategoria()" title="Nova categoria">+</button>
             </div>
           </div>
 
-          <div class="field"><label>Descrição</label><input id="desc"/></div>
+          <div class="field"><label>Descrição</label><input id="desc" placeholder="Ex: Mercado, aluguel, salário..."/></div>
+
           <div class="row2">
-            <div class="field"><label>Valor (TOTAL)</label><input id="valor" type="number" step="0.01"/></div>
+            <div class="field"><label>Valor (TOTAL)</label><input id="valor" type="number" step="0.01" placeholder="0,00"/></div>
             <div class="field"><label>Data</label><input id="data" type="date"/></div>
           </div>
 
@@ -195,12 +345,12 @@
             </div>
           </div>
 
-          <p class="hint">
+          <div class="mini">
             <span class="pill">Dica</span>
             Transferências entre contas ficam na aba <b>Transferências</b> e não entram em receitas/despesas.
-          </p>
+          </div>
 
-          <button class="main" onclick="adicionarLancamento()">Adicionar</button>
+          <button class="main" onclick="adicionarLancamento()" style="margin-top:10px;">Adicionar</button>
         </div>
 
         <div class="list" id="listaMes"></div>
@@ -212,7 +362,7 @@
         <div class="cards">
           <div class="card"><h3>Receitas Ano</h3><div class="value" id="rAno">R$0</div></div>
           <div class="card"><h3>Despesas Ano</h3><div class="value" id="dAno">R$0</div></div>
-          <div class="card saldo"><h3>Saldo Ano</h3><div class="value" id="sAno">R$0</div></div>
+          <div class="card saldo"><h3>Saldo Ano</h3><div class="value" id="sAno">R$0</div><div class="sub">Somente lançamentos pagos</div></div>
         </div>
         <div class="chart-box"><canvas id="graficoAno"></canvas></div>
       </div>
@@ -221,6 +371,7 @@
       <div id="telaContas" class="hidden">
         <div class="box">
           <h2>Minhas Contas</h2>
+
           <div class="row2">
             <div class="field"><label>Nome</label><input id="contaNome" placeholder="Ex: Itaú Casa"></div>
             <div class="field">
@@ -233,10 +384,12 @@
               </select>
             </div>
           </div>
+
           <div class="field"><label>Saldo inicial</label><input id="contaSaldoInicial" type="number" step="0.01" value="0"></div>
           <button class="main" onclick="criarConta()">Criar conta</button>
-          <div class="hint" style="margin-top:10px">
-            Se você já tinha lançamentos antigos, eles vão cair na <b>Conta Padrão</b> automaticamente.
+
+          <div class="mini" style="margin-top:10px">
+            Lançamentos antigos (sem conta) caem automaticamente na <b>Conta Padrão</b>.
           </div>
         </div>
 
@@ -247,22 +400,26 @@
       <div id="telaTransf" class="hidden">
         <div class="form">
           <h2>Nova Transferência</h2>
+
           <div class="row2">
             <div class="field"><label>Origem</label><select id="tOrigem"></select></div>
             <div class="field"><label>Destino</label><select id="tDestino"></select></div>
           </div>
+
           <div class="row2">
-            <div class="field"><label>Valor</label><input id="tValor" type="number" step="0.01"></div>
+            <div class="field"><label>Valor</label><input id="tValor" type="number" step="0.01" placeholder="0,00"></div>
             <div class="field"><label>Data</label><input id="tData" type="date"></div>
           </div>
+
           <div class="field"><label>Descrição</label><input id="tDesc" placeholder="Ex: Repasse despesas familiares"></div>
           <button class="main" onclick="criarTransferencia()">Salvar transferência</button>
         </div>
 
         <div class="box">
           <h2>Transferências do mês</h2>
-          <div class="hint">Mostramos por mês selecionado na aba “Mês”.</div>
+          <div class="mini">Mostra as transferências do mês selecionado na aba “Mês”.</div>
         </div>
+
         <div class="list" id="listaTransf"></div>
       </div>
 
@@ -281,7 +438,6 @@
       getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where
     } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-    // ✅ seu config (mantido)
     const firebaseConfig = {
       apiKey: "AIzaSyBAWyMjRVAODIVkC5w95nu9MliqNUMb8ZY",
       authDomain: "controle-financeiro-dffee.firebaseapp.com",
@@ -296,40 +452,41 @@
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
-    // estado
     const mesesNomes = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
     let userId = null;
-
     let categorias = [];
-    let contas = [];          // {id, nome, tipo, saldoInicial}
-    let dados = [];           // lancamentos
-    let transferencias = [];  // transferencias
+    let contas = [];
+    let dados = [];
+    let transferencias = [];
 
-    // gráficos
     let grafMes = null;
     let grafAno = null;
 
-    // --------- helpers UI ----------
-    window.toggle = (id) => {
-      const i = document.getElementById(id);
-      i.type = i.type === "password" ? "text" : "password";
+    const $ = (id) => document.getElementById(id);
+
+    // Inicializa meses
+    mesesNomes.forEach((m, i) => {
+      const o = document.createElement("option");
+      o.value = String(i);
+      o.text = m;
+      if (i === new Date().getMonth()) o.selected = true;
+      $("mesSelecionado").appendChild(o);
+    });
+
+    $("data").valueAsDate = new Date();
+    $("tData").valueAsDate = new Date();
+
+    $("repete").onchange = () => {
+      $("parcelasBox").classList.toggle("hidden", $("repete").value !== "parcelada");
     };
 
-    window.showCadastro = () => {
-      loginScreen.classList.add("hidden");
-      cadastroScreen.classList.remove("hidden");
-    };
-    window.showLogin = () => {
-      cadastroScreen.classList.add("hidden");
-      loginScreen.classList.remove("hidden");
-    };
-
-    // tabs
+    // Navegação / tabs
     const telas = {
-      mes: { el: () => telaMes, tab: () => tabMes },
-      ano: { el: () => telaAno, tab: () => tabAno },
-      contas: { el: () => telaContas, tab: () => tabContas },
-      transf: { el: () => telaTransf, tab: () => tabTransf },
+      mes: { el: () => $("telaMes"), tab: () => $("tabMes") },
+      ano: { el: () => $("telaAno"), tab: () => $("tabAno") },
+      contas: { el: () => $("telaContas"), tab: () => $("tabContas") },
+      transf: { el: () => $("telaTransf"), tab: () => $("tabTransf") },
     };
 
     window.showTela = (nome) => {
@@ -339,96 +496,88 @@
       });
       if (nome === "contas") renderContas();
       if (nome === "transf") renderTransferenciasMes();
+      if (nome === "ano") renderAno();
+      if (nome === "mes") renderMes();
     };
 
-    // --------- Auth buttons ----------
-    btnLogin.onclick = () =>
-      signInWithEmailAndPassword(auth, emailLogin.value, senhaLogin.value)
+    window.showCadastro = () => {
+      $("loginScreen").classList.add("hidden");
+      $("cadastroScreen").classList.remove("hidden");
+    };
+    window.showLogin = () => {
+      $("cadastroScreen").classList.add("hidden");
+      $("loginScreen").classList.remove("hidden");
+    };
+
+    // Auth ações
+    $("btnLogin").onclick = () =>
+      signInWithEmailAndPassword(auth, $("emailLogin").value, $("senhaLogin").value)
         .catch(() => alert("Email ou senha inválidos"));
 
-    btnCadastrar.onclick = () => {
-      if (senhaCad.value !== senhaConf.value) return alert("As senhas não conferem");
-      createUserWithEmailAndPassword(auth, emailCad.value, senhaCad.value)
+    $("btnCadastrar").onclick = () => {
+      if ($("senhaCad").value !== $("senhaConf").value) return alert("As senhas não conferem");
+      createUserWithEmailAndPassword(auth, $("emailCad").value, $("senhaCad").value)
         .catch(() => alert("Erro ao criar conta"));
     };
 
-    btnReset.onclick = () => {
-      if (!emailLogin.value) return alert("Digite seu email");
-      sendPasswordResetEmail(auth, emailLogin.value)
+    $("btnReset").onclick = () => {
+      if (!$("emailLogin").value) return alert("Digite seu email");
+      sendPasswordResetEmail(auth, $("emailLogin").value)
         .then(() => alert("Email enviado"))
         .catch(() => alert("Erro ao enviar email"));
     };
 
-    btnGoogle.onclick = () =>
+    $("btnGoogle").onclick = () =>
       signInWithPopup(auth, provider).catch(() => alert("Erro no login com Google"));
 
     window.logout = () => signOut(auth);
 
-    // --------- init meses ----------
-    mesesNomes.forEach((m, i) => {
-      const o = document.createElement("option");
-      o.value = String(i);
-      o.text = m;
-      if (i === new Date().getMonth()) o.selected = true;
-      mesSelecionado.appendChild(o);
-    });
-    data.valueAsDate = new Date();
-    tData.valueAsDate = new Date();
-
-    repete.onchange = () => {
-      parcelasBox.classList.toggle("hidden", repete.value !== "parcelada");
-    };
-
-    // --------- Loaders ----------
-    async function garantirContaPadrao() {
-      // cria "Conta Padrão" se não houver contas
+    async function garantirContaPadrao(){
       const snap = await getDocs(collection(db, "users", userId, "contas"));
       if (snap.size === 0) {
-        await addDoc(collection(db, "users", userId, "contas"), {
-          nome: "Conta Padrão",
-          tipo: "corrente",
-          saldoInicial: 0,
-          criadoEm: new Date()
+        await addDoc(collection(db,"users",userId,"contas"),{
+          nome:"Conta Padrão",
+          tipo:"corrente",
+          saldoInicial:0,
+          criadoEm:new Date()
         });
       }
     }
 
-    async function carregarContas() {
+    async function carregarContas(){
       contas = [];
       const snap = await getDocs(collection(db, "users", userId, "contas"));
-      snap.forEach(d => contas.push({ id: d.id, ...d.data() }));
-      // ordena: padrão primeiro
+      snap.forEach(d => contas.push({id:d.id, ...d.data()}));
       contas.sort((a,b)=>{
-        if ((a.nome||"").toLowerCase().includes("padrão")) return -1;
-        if ((b.nome||"").toLowerCase().includes("padrão")) return 1;
+        const ap = (a.nome||"").toLowerCase().includes("padrão");
+        const bp = (b.nome||"").toLowerCase().includes("padrão");
+        if (ap && !bp) return -1;
+        if (!ap && bp) return 1;
         return (a.nome||"").localeCompare(b.nome||"");
       });
       preencherSelectContas();
     }
 
-    function preencherSelectContas() {
-      // select do lançamento
-      contaLanc.innerHTML = "";
-      contas.forEach(c=>{
-        const o = document.createElement("option");
-        o.value = c.id;
-        o.text = `${c.nome} (${c.tipo})`;
-        contaLanc.appendChild(o);
-      });
+    function preencherSelectContas(){
+      $("contaLanc").innerHTML = "";
+      $("tOrigem").innerHTML = "";
+      $("tDestino").innerHTML = "";
 
-      // selects da transferência
-      tOrigem.innerHTML = "";
-      tDestino.innerHTML = "";
       contas.forEach(c=>{
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.text = `${c.nome} (${c.tipo})`;
+        $("contaLanc").appendChild(opt);
+
         const o1 = document.createElement("option");
         o1.value = c.id; o1.text = c.nome;
         const o2 = o1.cloneNode(true);
-        tOrigem.appendChild(o1);
-        tDestino.appendChild(o2);
+        $("tOrigem").appendChild(o1);
+        $("tDestino").appendChild(o2);
       });
     }
 
-    async function carregarCategorias() {
+    async function carregarCategorias(){
       categorias = [];
       const snap = await getDocs(collection(db, "users", userId, "categorias"));
       snap.forEach(d => categorias.push(d.data().nome));
@@ -439,27 +588,27 @@
         return carregarCategorias();
       }
 
-      categoria.innerHTML = '<option value="">Selecione</option>';
+      $("categoria").innerHTML = '<option value="">Selecione</option>';
       categorias.forEach(c=>{
         const o = document.createElement("option");
         o.value = c; o.text = c;
-        categoria.appendChild(o);
+        $("categoria").appendChild(o);
       });
     }
 
-    async function carregarLancamentos() {
+    async function carregarLancamentos(){
       dados = [];
       const snap = await getDocs(collection(db, "users", userId, "lancamentos"));
-      snap.forEach(d => dados.push({ id: d.id, ...d.data() }));
+      snap.forEach(d => dados.push({id:d.id, ...d.data()}));
     }
 
-    async function carregarTransferencias() {
+    async function carregarTransferencias(){
       transferencias = [];
       const snap = await getDocs(collection(db, "users", userId, "transferencias"));
-      snap.forEach(d => transferencias.push({ id: d.id, ...d.data() }));
+      snap.forEach(d => transferencias.push({id:d.id, ...d.data()}));
     }
 
-    async function carregarTudo() {
+    async function carregarTudo(){
       await garantirContaPadrao();
       await carregarContas();
       await carregarCategorias();
@@ -471,7 +620,6 @@
       renderTransferenciasMes();
     }
 
-    // --------- criar categoria ----------
     window.novaCategoria = async () => {
       const n = prompt("Nova categoria:");
       if (!n) return;
@@ -479,106 +627,99 @@
       await carregarCategorias();
     };
 
-    // --------- criar conta ----------
     window.criarConta = async () => {
-      const nome = (contaNome.value || "").trim();
-      const tipo = contaTipo.value;
-      const saldoInicial = Number(contaSaldoInicial.value || 0);
+      try{
+        const nome = ($("contaNome").value || "").trim();
+        const tipo = $("contaTipo").value;
+        const saldoInicial = Number($("contaSaldoInicial").value || 0);
+        if (!nome) return alert("Digite um nome para a conta.");
 
-      if (!nome) return alert("Digite um nome para a conta.");
-      await addDoc(collection(db, "users", userId, "contas"), {
-        nome, tipo, saldoInicial, criadoEm: new Date()
-      });
+        await addDoc(collection(db,"users",userId,"contas"),{
+          nome, tipo, saldoInicial, criadoEm:new Date()
+        });
 
-      contaNome.value = "";
-      contaSaldoInicial.value = "0";
-      await carregarContas();
-      renderContas();
-      alert("Conta criada!");
+        $("contaNome").value = "";
+        $("contaSaldoInicial").value = "0";
+
+        await carregarContas();
+        renderContas();
+        alert("Conta criada!");
+      }catch(e){
+        console.error(e);
+        alert("Erro ao criar conta. Veja o console (F12).");
+      }
     };
 
-    // --------- criar transferencia ----------
     window.criarTransferencia = async () => {
-      const origemId = tOrigem.value;
-      const destinoId = tDestino.value;
-      const valor = Number(tValor.value || 0);
-      const dataStr = tData.value;
-      const desc = (tDesc.value || "").trim();
+      try{
+        const origemId = $("tOrigem").value;
+        const destinoId = $("tDestino").value;
+        const valor = Number($("tValor").value || 0);
+        const dataStr = $("tData").value;
+        const desc = ($("tDesc").value || "").trim();
 
-      if (!origemId || !destinoId) return alert("Selecione origem e destino.");
-      if (origemId === destinoId) return alert("Origem e destino devem ser diferentes.");
-      if (!valor || valor <= 0) return alert("Informe um valor válido.");
-      if (!dataStr) return alert("Informe a data.");
+        if (!origemId || !destinoId) return alert("Selecione origem e destino.");
+        if (origemId === destinoId) return alert("Origem e destino devem ser diferentes.");
+        if (!valor || valor <= 0) return alert("Informe um valor válido.");
+        if (!dataStr) return alert("Informe a data.");
 
-      const mes = new Date(dataStr).getMonth();
+        const mes = new Date(dataStr).getMonth();
 
-      await addDoc(collection(db,"users",userId,"transferencias"),{
-        origemId, destinoId, valor,
-        data: dataStr,
-        mes,
-        desc,
-        status: "confirmada",
-        criadoEm: new Date()
-      });
+        await addDoc(collection(db,"users",userId,"transferencias"),{
+          origemId, destinoId, valor, data:dataStr, mes,
+          desc, status:"confirmada", criadoEm:new Date()
+        });
 
-      tValor.value = "";
-      tDesc.value = "";
-      await carregarTransferencias();
-      renderTransferenciasMes();
-      renderContas();
-      alert("Transferência salva!");
+        $("tValor").value = "";
+        $("tDesc").value = "";
+
+        await carregarTransferencias();
+        renderTransferenciasMes();
+        renderContas();
+        alert("Transferência salva!");
+      }catch(e){
+        console.error(e);
+        alert("Erro ao salvar transferência. Veja o console (F12).");
+      }
     };
 
-    // --------- lançar receitas/despesas ----------
     window.adicionarLancamento = async () => {
-      if (!tipo.value || !categoria.value || !valor.value || !data.value || !repete.value) {
+      if (!$("tipo").value || !$("categoria").value || !$("valor").value || !$("data").value || !$("repete").value) {
         return alert("Preencha todos os campos");
       }
 
-      // conta selecionada (fallback: primeira conta)
-      const contaId = contaLanc.value || (contas[0]?.id ?? null);
+      const contaId = $("contaLanc").value || (contas[0]?.id ?? null);
 
-      const valorTotal = Number(valor.value);
-      const dataStr = data.value;
+      const valorTotal = Number($("valor").value);
+      const dataStr = $("data").value;
       const mesBase = new Date(dataStr).getMonth();
       const grupo = String(Date.now()) + "_" + Math.floor(Math.random()*1e6);
 
       const base = {
-        tipo: tipo.value,
-        cat: categoria.value,
-        desc: desc.value || "",
+        tipo: $("tipo").value,
+        cat: $("categoria").value,
+        desc: $("desc").value || "",
         mes: mesBase,
         data: dataStr,
         grupo,
         status: "pendente",
-        contaId: contaId
+        contaId
       };
 
       async function salvar(o){ await addDoc(collection(db,"users",userId,"lancamentos"), o); }
 
-      if (repete.value === "fixa") {
-        for (let m=mesBase; m<12; m++) {
-          await salvar({ ...base, mes:m, valor:valorTotal, fixed:true });
-        }
-      } else if (repete.value === "parcelada") {
-        const p = Number(parcelas.value || 2);
+      if ($("repete").value === "fixa") {
+        for (let m=mesBase; m<12; m++) await salvar({ ...base, mes:m, valor:valorTotal, fixed:true });
+      } else if ($("repete").value === "parcelada") {
+        const p = Number($("parcelas").value || 2);
         const vp = valorTotal / p;
-        for (let i=0; i<p; i++) {
-          await salvar({
-            ...base,
-            mes:(mesBase+i)%12,
-            valor:vp,
-            parcela:i+1,
-            total:p
-          });
-        }
+        for (let i=0; i<p; i++) await salvar({ ...base, mes:(mesBase+i)%12, valor:vp, parcela:i+1, total:p });
       } else {
         await salvar({ ...base, valor:valorTotal });
       }
 
-      // limpar
-      desc.value=""; valor.value=""; repete.value=""; parcelas.value=2;
-      parcelasBox.classList.add("hidden");
+      $("desc").value=""; $("valor").value=""; $("repete").value=""; $("parcelas").value=2;
+      $("parcelasBox").classList.add("hidden");
 
       await carregarLancamentos();
       renderMes();
@@ -586,12 +727,10 @@
       renderContas();
     };
 
-    // --------- ações item ----------
     window.excluir = async (id) => {
       const item = dados.find(i=>i.id===id);
       if (!item) return;
 
-      // apagar todos do mesmo grupo (pendentes e pagos) para não deixar “pedaços”
       const q = query(collection(db,"users",userId,"lancamentos"), where("grupo","==",item.grupo));
       const snap = await getDocs(q);
       for (const d of snap.docs) await deleteDoc(d.ref);
@@ -624,7 +763,23 @@
       renderMes(); renderAno(); renderContas();
     };
 
-    // --------- cálculos ----------
+    // ===== menus ⋯ =====
+    window.toggleMenu = (id) => {
+      document.querySelectorAll(".menu").forEach(m=>{
+        if (m.id !== `menu-${id}`) m.classList.add("hidden");
+      });
+      const el = document.getElementById(`menu-${id}`);
+      if (el) el.classList.toggle("hidden");
+    };
+    window.closeMenu = (id) => {
+      const el = document.getElementById(`menu-${id}`);
+      if (el) el.classList.add("hidden");
+    };
+    document.addEventListener("click", (e) => {
+      const isMenu = e.target.closest(".menuWrap");
+      if (!isMenu) document.querySelectorAll(".menu").forEach(m=>m.classList.add("hidden"));
+    });
+
     function nomeConta(id){
       const c = contas.find(x=>x.id===id);
       return c ? c.nome : "Conta Padrão";
@@ -634,16 +789,14 @@
       const conta = contas.find(c=>c.id===contaId);
       let saldo = Number(conta?.saldoInicial || 0);
 
-      // lançamentos pagos impactam saldo
       for (const l of dados) {
-        const lConta = l.contaId || contas[0]?.id; // fallback
+        const lConta = l.contaId || contas[0]?.id;
         if (l.status !== "pago") continue;
         if (lConta !== contaId) continue;
         if (l.tipo === "receita") saldo += Number(l.valor||0);
         if (l.tipo === "despesa") saldo -= Number(l.valor||0);
       }
 
-      // transferências confirmadas impactam saldo
       for (const t of transferencias) {
         if (t.status !== "confirmada") continue;
         if (t.origemId === contaId) saldo -= Number(t.valor||0);
@@ -653,61 +806,66 @@
       return saldo;
     }
 
-    // --------- render mês ----------
     window.renderMes = () => {
-      const mes = Number(mesSelecionado.value);
+      const mes = Number($("mesSelecionado").value);
       let r = 0, d = 0;
       const cat = {};
 
-      listaMes.innerHTML = "<h2>Lançamentos</h2>";
+      $("listaMes").innerHTML = "<h2>Lançamentos</h2>";
 
       const itensMes = dados.filter(i => Number(i.mes) === mes);
-
-      // ordenar por data (se tiver)
       itensMes.sort((a,b)=> String(a.data||"").localeCompare(String(b.data||"")));
 
       for (const i of itensMes) {
         if (i.status === "pago") {
           if (i.tipo === "receita") r += Number(i.valor||0);
           else d += Number(i.valor||0);
-
           if (i.tipo === "despesa") cat[i.cat] = (cat[i.cat] || 0) + Number(i.valor||0);
         }
+
+        const statusTxt = (i.status === "pago") ? "Pago" : "Pendente";
+        const contaNome = nomeConta(i.contaId || contas[0]?.id);
 
         let info = i.desc || "";
         if (i.parcela) info += ` (${i.parcela}/${i.total})`;
         if (i.fixed) info += " (Fixa)";
-        const contaNome = nomeConta(i.contaId || contas[0]?.id);
-        info += ` • ${contaNome} • ${i.status}`;
 
         const div = document.createElement("div");
-        div.className = "item";
+        div.className = "tx";
+
         div.innerHTML = `
           <div>
-            ${i.cat}<br>
-            <span class="cat">${info}</span>
+            <div class="title">${i.cat}</div>
+            <div class="meta">${info} • ${contaNome} • ${statusTxt}</div>
           </div>
-          <div class="valor ${i.tipo==='receita'?'rec':'desp'}">R$ ${Number(i.valor||0).toFixed(2)}</div>
-          <div class="actions">
-            ${
-              i.status==="pendente"
-                ? `<button class="pay" onclick="pagar('${i.id}')">✔</button>`
-                : `<button class="back" onclick="voltar('${i.id}')">↩</button>`
-            }
-            <button class="edit" onclick="editar('${i.id}')">✏</button>
-            <button class="del" onclick="excluir('${i.id}')">✖</button>
+
+          <div class="right">
+            <div class="amount ${i.tipo==='receita'?'rec':'desp'}">R$ ${Number(i.valor||0).toFixed(2)}</div>
+
+            <div class="menuWrap">
+              <button class="menuBtn" onclick="toggleMenu('${i.id}')" title="Ações">⋯</button>
+              <div class="menu hidden" id="menu-${i.id}">
+                ${
+                  i.status==="pendente"
+                    ? `<button class="ok" onclick="pagar('${i.id}');closeMenu('${i.id}')">✔ Confirmar pagamento</button>`
+                    : `<button class="undo" onclick="voltar('${i.id}');closeMenu('${i.id}')">↩ Marcar como pendente</button>`
+                }
+                <button class="edit" onclick="editar('${i.id}');closeMenu('${i.id}')">✏ Editar valor</button>
+                <button class="del" onclick="excluir('${i.id}');closeMenu('${i.id}')">🗑 Excluir</button>
+              </div>
+            </div>
           </div>
         `;
-        listaMes.appendChild(div);
+
+        $("listaMes").appendChild(div);
       }
 
-      rMes.innerText = `R$ ${r.toFixed(2)}`;
-      dMes.innerText = `R$ ${d.toFixed(2)}`;
-      sMes.innerText = `R$ ${(r-d).toFixed(2)}`;
+      $("rMes").innerText = `R$ ${r.toFixed(2)}`;
+      $("dMes").innerText = `R$ ${d.toFixed(2)}`;
+      $("sMes").innerText = `R$ ${(r-d).toFixed(2)}`;
 
-      // gráfico do mês
       if (!grafMes) {
-        grafMes = new Chart(graficoMes, {
+        grafMes = new Chart($("graficoMes"), {
           type:'pie',
           data:{ labels:[], datasets:[{ data:[], backgroundColor:["#22c55e","#3b82f6","#f59e0b","#ef4444","#a855f7","#14b8a6"] }] }
         });
@@ -716,12 +874,10 @@
       grafMes.data.datasets[0].data = Object.values(cat);
       grafMes.update();
 
-      // transferências do mês (aba transf)
       renderTransferenciasMes();
     };
 
-    // --------- render ano ----------
-    function renderAno(){
+    window.renderAno = () => {
       let rM = Array(12).fill(0), dM = Array(12).fill(0), r=0, d=0;
       for (const i of dados) {
         if (i.status !== "pago") continue;
@@ -730,12 +886,12 @@
         else { d += Number(i.valor||0); dM[m] += Number(i.valor||0); }
       }
 
-      rAno.innerText = `R$ ${r.toFixed(2)}`;
-      dAno.innerText = `R$ ${d.toFixed(2)}`;
-      sAno.innerText = `R$ ${(r-d).toFixed(2)}`;
+      $("rAno").innerText = `R$ ${r.toFixed(2)}`;
+      $("dAno").innerText = `R$ ${d.toFixed(2)}`;
+      $("sAno").innerText = `R$ ${(r-d).toFixed(2)}`;
 
       if (!grafAno) {
-        grafAno = new Chart(graficoAno, {
+        grafAno = new Chart($("graficoAno"), {
           type:'bar',
           data:{ labels: mesesNomes, datasets:[
             {label:'Receitas', data:[], backgroundColor:"#22c55e"},
@@ -746,75 +902,75 @@
       grafAno.data.datasets[0].data = rM;
       grafAno.data.datasets[1].data = dM;
       grafAno.update();
-    }
-    window.renderAno = renderAno;
+    };
 
-    // --------- render contas ----------
-    function renderContas(){
-      listaContas.innerHTML = "<h2>Saldos por conta</h2>";
+    window.renderContas = () => {
+      $("listaContas").innerHTML = `
+        <h2>Saldos por conta</h2>
+        <div class="mini">Baseado em lançamentos <b>pagos</b> e transferências <b>confirmadas</b>.</div>
+        <div class="accountsGrid" id="accGrid"></div>
+      `;
+
+      const grid = document.getElementById("accGrid");
+
       contas.forEach(c=>{
         const saldo = saldoConta(c.id);
+        const posNeg = saldo >= 0 ? "pos" : "neg";
         const div = document.createElement("div");
-        div.className = "item";
+        div.className = "acc";
         div.innerHTML = `
           <div>
-            ${c.nome}<br>
-            <span class="cat">${c.tipo} • saldo inicial: R$ ${Number(c.saldoInicial||0).toFixed(2)}</span>
+            <div class="name">${c.nome}</div>
+            <div class="type">${c.tipo} • saldo inicial: R$ ${Number(c.saldoInicial||0).toFixed(2)}</div>
           </div>
-          <div class="valor rec">R$ ${saldo.toFixed(2)}</div>
-          <div></div>
+          <div class="bal ${posNeg}">R$ ${saldo.toFixed(2)}</div>
         `;
-        listaContas.appendChild(div);
+        grid.appendChild(div);
       });
-    }
-    window.renderContas = renderContas;
+    };
 
-    // --------- render transferências mês ----------
-    function renderTransferenciasMes(){
-      const mes = Number(mesSelecionado.value);
-      listaTransf.innerHTML = "";
+    window.renderTransferenciasMes = () => {
+      const mes = Number($("mesSelecionado").value);
+      $("listaTransf").innerHTML = "";
 
       const itens = transferencias
         .filter(t => Number(t.mes) === mes)
         .sort((a,b)=> String(a.data||"").localeCompare(String(b.data||"")));
 
       if (itens.length === 0) {
-        listaTransf.innerHTML = `<div class="hint">Nenhuma transferência neste mês.</div>`;
+        $("listaTransf").innerHTML = `<div class="mini">Nenhuma transferência neste mês.</div>`;
         return;
       }
 
       itens.forEach(t=>{
         const div = document.createElement("div");
-        div.className = "item";
+        div.className = "tr";
         div.innerHTML = `
           <div>
-            ${nomeConta(t.origemId)} → ${nomeConta(t.destinoId)}<br>
-            <span class="cat">${t.desc || ""} • ${t.data || ""}</span>
+            <div class="title">${nomeConta(t.origemId)} → ${nomeConta(t.destinoId)}</div>
+            <div class="meta">${t.desc || ""} • ${t.data || ""}</div>
           </div>
-          <div class="valor">R$ ${Number(t.valor||0).toFixed(2)}</div>
-          <div></div>
+          <div class="val">R$ ${Number(t.valor||0).toFixed(2)}</div>
         `;
-        listaTransf.appendChild(div);
+        $("listaTransf").appendChild(div);
       });
-    }
-    window.renderTransferenciasMes = renderTransferenciasMes;
+    };
 
-    // --------- Auth state ----------
     onAuthStateChanged(auth, async (u) => {
       if (u) {
         userId = u.uid;
-        loginScreen.classList.add("hidden");
-        cadastroScreen.classList.add("hidden");
-        appScreen.classList.remove("hidden");
+        $("loginScreen").classList.add("hidden");
+        $("cadastroScreen").classList.add("hidden");
+        $("appScreen").classList.remove("hidden");
         await carregarTudo();
       } else {
-        appScreen.classList.add("hidden");
+        $("appScreen").classList.add("hidden");
         showLogin();
       }
     });
-
   </script>
 </body>
 </html>
+
 
 
