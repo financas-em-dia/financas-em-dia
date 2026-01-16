@@ -35,7 +35,7 @@
     .container{max-width:560px;margin:auto;}
     h1{text-align:center;margin:10px 0 12px;font-size:1.35rem;letter-spacing:.2px;}
     h2{margin:0 0 10px 0;font-size:1.05rem;}
-    .hidden{display:none;}
+    .hidden{display:none!important;}
     button{cursor:pointer}
 
     .box,.form,.list,.chart-box{
@@ -141,7 +141,6 @@
     }
     .mini{font-size:.78rem;color:var(--muted);line-height:1.35}
 
-    /* LANÇAMENTOS */
     .tx{
       display:grid;
       grid-template-columns: 1fr auto;
@@ -179,7 +178,6 @@
     .iconBtn.ok{border-color: rgba(34,197,94,0.45); color: var(--primary);}
     .iconBtn.undo{border-color: rgba(59,130,246,0.45); color: var(--blue);}
 
-    /* CONTAS */
     .accountsGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px;}
     .acc{
       background: var(--card2);
@@ -197,7 +195,6 @@
     .acc .bal.pos{color:var(--primary);}
     .acc .bal.neg{color:var(--danger);}
 
-    /* TRANSFERÊNCIAS */
     .tr{
       display:grid;
       grid-template-columns:1fr auto;
@@ -211,7 +208,6 @@
     .tr .meta{font-size:.78rem;color:var(--muted);margin-top:2px}
     .tr .val{font-weight:950;min-width:115px;text-align:right;font-variant-numeric: tabular-nums;}
 
-    /* MODAL AÇÕES (sempre acima do gráfico) */
     .modalBack{
       position:fixed;
       inset:0;
@@ -267,20 +263,17 @@
     .modalBtn:hover{background: rgba(255,255,255,0.07);}
     .modalBtn.edit{border-color: rgba(245,158,11,0.35); color: var(--warn);}
     .modalBtn.del{border-color: rgba(239,68,68,0.35); color: var(--danger);}
-
-    .chart-box{ overflow: visible; }
   </style>
 </head>
 
 <body>
   <div class="container">
 
-    <!-- LOGIN -->
     <div id="loginScreen">
       <h1>🔐 Finanças em Dia</h1>
       <div class="box">
-        <div class="field"><label>Email</label><input id="emailLogin" type="email" autocomplete="email"></div>
-        <div class="field"><label>Senha</label><input id="senhaLogin" type="password" autocomplete="current-password"></div>
+        <div class="field"><label>Email</label><input id="emailLogin" type="email"></div>
+        <div class="field"><label>Senha</label><input id="senhaLogin" type="password"></div>
         <button class="main" id="btnLogin">Entrar</button>
         <button class="sec" onclick="showCadastro()">Primeiro acesso</button>
         <button class="sec" id="btnReset">Esqueci minha senha</button>
@@ -289,19 +282,17 @@
       </div>
     </div>
 
-    <!-- CADASTRO -->
     <div id="cadastroScreen" class="hidden">
       <h1>📝 Criar Conta</h1>
       <div class="box">
-        <div class="field"><label>Email</label><input id="emailCad" type="email" autocomplete="email"></div>
-        <div class="field"><label>Senha</label><input id="senhaCad" type="password" autocomplete="new-password"></div>
-        <div class="field"><label>Confirmar Senha</label><input id="senhaConf" type="password" autocomplete="new-password"></div>
+        <div class="field"><label>Email</label><input id="emailCad" type="email"></div>
+        <div class="field"><label>Senha</label><input id="senhaCad" type="password"></div>
+        <div class="field"><label>Confirmar Senha</label><input id="senhaConf" type="password"></div>
         <button class="main" id="btnCadastrar">Cadastrar</button>
         <button class="sec" onclick="showLogin()">Voltar</button>
       </div>
     </div>
 
-    <!-- APP -->
     <div id="appScreen" class="hidden">
       <h1>💰 Finanças em Dia</h1>
 
@@ -312,7 +303,6 @@
         <button id="tabTransf" onclick="showTela('transf')">Transferências</button>
       </div>
 
-      <!-- TELA MÊS -->
       <div id="telaMes">
         <div class="box">
           <div class="field">
@@ -378,10 +368,10 @@
             </div>
           </div>
 
-          <div class="field"><label>Descrição</label><input id="desc" placeholder="Ex: Mercado, aluguel, salário..."/></div>
+          <div class="field"><label>Descrição</label><input id="desc"/></div>
 
           <div class="row2">
-            <div class="field"><label>Valor (TOTAL)</label><input id="valor" type="number" step="0.01" placeholder="0,00"/></div>
+            <div class="field"><label>Valor (TOTAL)</label><input id="valor" type="number" step="0.01"/></div>
             <div class="field"><label>Data</label><input id="data" type="date"/></div>
           </div>
 
@@ -402,24 +392,22 @@
             </div>
           </div>
 
-          <button class="main" onclick="adicionarLancamento()" style="margin-top:10px;">Adicionar</button>
+          <button class="main" onclick="adicionarLancamento()">Adicionar</button>
         </div>
 
         <div class="list" id="listaMes"></div>
         <div class="chart-box"><canvas id="graficoMes"></canvas></div>
       </div>
 
-      <!-- TELA ANO -->
       <div id="telaAno" class="hidden">
         <div class="cards">
           <div class="card"><h3>Receitas Ano</h3><div class="value" id="rAno">R$0</div></div>
           <div class="card"><h3>Despesas Ano</h3><div class="value" id="dAno">R$0</div></div>
-          <div class="card saldo"><h3>Saldo Ano</h3><div class="value" id="sAno">R$0</div><div class="sub">Somente lançamentos pagos</div></div>
+          <div class="card saldo"><h3>Saldo Ano</h3><div class="value" id="sAno">R$0</div><div class="sub">Somente pagos</div></div>
         </div>
 
         <div class="box">
           <h2>Saldo Total (todas as contas)</h2>
-          <div class="mini">Soma dos saldos atuais de todas as contas.</div>
           <div class="card" style="margin-top:10px;">
             <h3>Saldo Total</h3>
             <div class="value" id="saldoTotal">R$0</div>
@@ -429,13 +417,12 @@
         <div class="chart-box"><canvas id="graficoAno"></canvas></div>
       </div>
 
-      <!-- TELA CONTAS -->
       <div id="telaContas" class="hidden">
         <div class="box">
           <h2>Minhas Contas</h2>
 
           <div class="row2">
-            <div class="field"><label>Nome</label><input id="contaNome" placeholder="Ex: Itaú Casa"></div>
+            <div class="field"><label>Nome</label><input id="contaNome"></div>
             <div class="field">
               <label>Tipo</label>
               <select id="contaTipo">
@@ -454,7 +441,6 @@
         <div class="list" id="listaContas"></div>
       </div>
 
-      <!-- TELA TRANSFERÊNCIAS -->
       <div id="telaTransf" class="hidden">
         <div class="form">
           <h2>Nova Transferência</h2>
@@ -465,17 +451,12 @@
           </div>
 
           <div class="row2">
-            <div class="field"><label>Valor</label><input id="tValor" type="number" step="0.01" placeholder="0,00"></div>
+            <div class="field"><label>Valor</label><input id="tValor" type="number" step="0.01"></div>
             <div class="field"><label>Data</label><input id="tData" type="date"></div>
           </div>
 
-          <div class="field"><label>Descrição</label><input id="tDesc" placeholder="Ex: Repasse despesas familiares"></div>
+          <div class="field"><label>Descrição</label><input id="tDesc"></div>
           <button class="main" onclick="criarTransferencia()">Salvar transferência</button>
-        </div>
-
-        <div class="box">
-          <h2>Transferências do mês</h2>
-          <div class="mini">Mostra as transferências do mês selecionado na aba “Mês”.</div>
         </div>
 
         <div class="list" id="listaTransf"></div>
@@ -485,7 +466,7 @@
     </div>
   </div>
 
-  <!-- MODAL AÇÕES -->
+  <!-- MODAL AÇÕES (COMEÇA FECHADO) -->
   <div id="actionsBack" class="modalBack hidden" onclick="closeActions(event)">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modalHeader">
@@ -535,28 +516,32 @@
     let grafMes = null;
     let grafAno = null;
 
-    // state do modal de ações
     let actionsCtx = { type:null, id:null };
 
     const $ = (id) => document.getElementById(id);
 
-    // Inicializa meses
-    mesesNomes.forEach((m, i) => {
-      const o = document.createElement("option");
-      o.value = String(i);
-      o.text = m;
-      if (i === new Date().getMonth()) o.selected = true;
+    // Expor funções chamadas no HTML (IMPORTANTE em script type=module)
+    window.openActions = openActions;
+    window.closeActions = closeActions;
+    window.actionsEdit = actionsEdit;
+    window.actionsDelete = actionsDelete;
+
+    window.showCadastro = () => { $("loginScreen").classList.add("hidden"); $("cadastroScreen").classList.remove("hidden"); };
+    window.showLogin = () => { $("cadastroScreen").classList.add("hidden"); $("loginScreen").classList.remove("hidden"); };
+    window.logout = () => signOut(auth);
+
+    // meses
+    mesesNomes.forEach((m,i)=>{
+      const o=document.createElement("option");
+      o.value=String(i); o.text=m;
+      if(i===new Date().getMonth()) o.selected=true;
       $("mesSelecionado").appendChild(o);
     });
-
     $("data").valueAsDate = new Date();
     $("tData").valueAsDate = new Date();
 
-    $("repete").onchange = () => {
-      $("parcelasBox").classList.toggle("hidden", $("repete").value !== "parcelada");
-    };
+    $("repete").onchange = () => $("parcelasBox").classList.toggle("hidden", $("repete").value!=="parcelada");
 
-    // Navegação / tabs
     const telas = {
       mes: { el: () => $("telaMes"), tab: () => $("tabMes") },
       ano: { el: () => $("telaAno"), tab: () => $("tabAno") },
@@ -569,132 +554,100 @@
         telas[k].el().classList.toggle("hidden", k !== nome);
         telas[k].tab().classList.toggle("active", k === nome);
       });
+      if (nome === "mes") renderMes();
+      if (nome === "ano") renderAno();
       if (nome === "contas") renderContas();
       if (nome === "transf") renderTransferenciasMes();
-      if (nome === "ano") renderAno();
-      if (nome === "mes") renderMes();
     };
 
-    window.showCadastro = () => {
-      $("loginScreen").classList.add("hidden");
-      $("cadastroScreen").classList.remove("hidden");
-    };
-    window.showLogin = () => {
-      $("cadastroScreen").classList.add("hidden");
-      $("loginScreen").classList.remove("hidden");
-    };
-
-    // Auth ações
     $("btnLogin").onclick = () =>
       signInWithEmailAndPassword(auth, $("emailLogin").value, $("senhaLogin").value)
-        .catch(() => alert("Email ou senha inválidos"));
+        .catch(()=>alert("Email ou senha inválidos"));
 
     $("btnCadastrar").onclick = () => {
       if ($("senhaCad").value !== $("senhaConf").value) return alert("As senhas não conferem");
       createUserWithEmailAndPassword(auth, $("emailCad").value, $("senhaCad").value)
-        .catch(() => alert("Erro ao criar conta"));
+        .catch(()=>alert("Erro ao criar conta"));
     };
 
     $("btnReset").onclick = () => {
-      if (!$("emailLogin").value) return alert("Digite seu email");
+      if(!$("emailLogin").value) return alert("Digite seu email");
       sendPasswordResetEmail(auth, $("emailLogin").value)
-        .then(() => alert("Email enviado"))
-        .catch(() => alert("Erro ao enviar email"));
+        .then(()=>alert("Email enviado"))
+        .catch(()=>alert("Erro ao enviar email"));
     };
 
-    $("btnGoogle").onclick = () =>
-      signInWithPopup(auth, provider).catch(() => alert("Erro no login com Google"));
-
-    window.logout = () => signOut(auth);
+    $("btnGoogle").onclick = () => signInWithPopup(auth, provider).catch(()=>alert("Erro no login com Google"));
 
     async function garantirContaPadrao(){
-      const snap = await getDocs(collection(db, "users", userId, "contas"));
+      const snap = await getDocs(collection(db,"users",userId,"contas"));
       if (snap.size === 0) {
-        await addDoc(collection(db,"users",userId,"contas"),{
-          nome:"Conta Padrão",
-          tipo:"corrente",
-          saldoInicial:0,
-          criadoEm:new Date()
-        });
+        await addDoc(collection(db,"users",userId,"contas"),{nome:"Conta Padrão",tipo:"corrente",saldoInicial:0,criadoEm:new Date()});
       }
     }
 
     async function carregarContas(){
-      contas = [];
-      const snap = await getDocs(collection(db, "users", userId, "contas"));
-      snap.forEach(d => contas.push({id:d.id, ...d.data()}));
-      contas.sort((a,b)=>{
-        const ap = (a.nome||"").toLowerCase().includes("padrão");
-        const bp = (b.nome||"").toLowerCase().includes("padrão");
-        if (ap && !bp) return -1;
-        if (!ap && bp) return 1;
-        return (a.nome||"").localeCompare(b.nome||"");
-      });
+      contas=[];
+      const snap=await getDocs(collection(db,"users",userId,"contas"));
+      snap.forEach(d=>contas.push({id:d.id,...d.data()}));
+      contas.sort((a,b)=>(a.nome||"").localeCompare(b.nome||""));
       preencherSelectContas();
       preencherFiltroContas();
     }
-
     function preencherSelectContas(){
-      $("contaLanc").innerHTML = "";
-      $("tOrigem").innerHTML = "";
-      $("tDestino").innerHTML = "";
-
+      $("contaLanc").innerHTML="";
+      $("tOrigem").innerHTML="";
+      $("tDestino").innerHTML="";
       contas.forEach(c=>{
-        const opt = document.createElement("option");
-        opt.value = c.id;
-        opt.text = `${c.nome} (${c.tipo})`;
-        $("contaLanc").appendChild(opt);
-
-        const o1 = document.createElement("option");
-        o1.value = c.id; o1.text = c.nome;
-        const o2 = o1.cloneNode(true);
+        const o=document.createElement("option");
+        o.value=c.id; o.text=`${c.nome} (${c.tipo})`;
+        $("contaLanc").appendChild(o);
+        const o1=document.createElement("option");
+        o1.value=c.id; o1.text=c.nome;
         $("tOrigem").appendChild(o1);
-        $("tDestino").appendChild(o2);
+        $("tDestino").appendChild(o1.cloneNode(true));
       });
     }
-
     function preencherFiltroContas(){
-      const sel = $("fConta");
-      const atual = sel.value || "todas";
-      sel.innerHTML = `<option value="todas">Todas as contas</option>`;
+      const sel=$("fConta");
+      const atual=sel.value || "todas";
+      sel.innerHTML=`<option value="todas">Todas as contas</option>`;
       contas.forEach(c=>{
-        const o = document.createElement("option");
-        o.value = c.id;
-        o.text = c.nome;
+        const o=document.createElement("option");
+        o.value=c.id; o.text=c.nome;
         sel.appendChild(o);
       });
       sel.value = Array.from(sel.options).some(o=>o.value===atual) ? atual : "todas";
     }
 
     async function carregarCategorias(){
-      categorias = [];
-      const snap = await getDocs(collection(db, "users", userId, "categorias"));
-      snap.forEach(d => categorias.push(d.data().nome));
-
-      if (categorias.length === 0) {
-        const base = ["Salário","Alimentação","Aluguel","Transporte","Lazer"];
-        for (const c of base) await addDoc(collection(db, "users", userId, "categorias"), { nome: c });
+      categorias=[];
+      const snap=await getDocs(collection(db,"users",userId,"categorias"));
+      snap.forEach(d=>categorias.push(d.data().nome));
+      if (categorias.length===0){
+        for (const c of ["Salário","Alimentação","Aluguel","Transporte","Lazer"]) {
+          await addDoc(collection(db,"users",userId,"categorias"),{nome:c});
+        }
         return carregarCategorias();
       }
-
-      $("categoria").innerHTML = '<option value="">Selecione</option>';
+      $("categoria").innerHTML='<option value="">Selecione</option>';
       categorias.forEach(c=>{
-        const o = document.createElement("option");
-        o.value = c; o.text = c;
+        const o=document.createElement("option");
+        o.value=c; o.text=c;
         $("categoria").appendChild(o);
       });
     }
 
     async function carregarLancamentos(){
-      dados = [];
-      const snap = await getDocs(collection(db, "users", userId, "lancamentos"));
-      snap.forEach(d => dados.push({id:d.id, ...d.data()}));
+      dados=[];
+      const snap=await getDocs(collection(db,"users",userId,"lancamentos"));
+      snap.forEach(d=>dados.push({id:d.id,...d.data()}));
     }
 
     async function carregarTransferencias(){
-      transferencias = [];
-      const snap = await getDocs(collection(db, "users", userId, "transferencias"));
-      snap.forEach(d => transferencias.push({id:d.id, ...d.data()}));
+      transferencias=[];
+      const snap=await getDocs(collection(db,"users",userId,"transferencias"));
+      snap.forEach(d=>transferencias.push({id:d.id,...d.data()}));
     }
 
     async function carregarTudo(){
@@ -703,578 +656,375 @@
       await carregarCategorias();
       await carregarLancamentos();
       await carregarTransferencias();
-      renderMes();
-      renderAno();
-      renderContas();
-      renderTransferenciasMes();
+      renderMes(); renderAno(); renderContas(); renderTransferenciasMes();
     }
 
-    // ====== MODAL AÇÕES ======
-    function openActions(type, id, title){
-      actionsCtx = { type, id };
+    // ===== Modal actions (definidas antes de expor) =====
+    function openActions(type,id,title){
+      actionsCtx={type,id};
       $("actionsTitle").innerText = title || "Ações";
       $("actionsBack").classList.remove("hidden");
     }
-    window.closeActions = (ev) => {
+    function closeActions(ev){
       if (ev && ev.target && ev.target.id !== "actionsBack") return;
       $("actionsBack").classList.add("hidden");
-      actionsCtx = { type:null, id:null };
-    };
-    window.actionsEdit = async () => {
-      const {type, id} = actionsCtx;
-      if (!type || !id) return;
-
-      if (type === "lanc") await editarLanc(id);
-      if (type === "transf") await editarTransf(id);
-      if (type === "conta") await editarConta(id);
-
+      actionsCtx={type:null,id:null};
+    }
+    async function actionsEdit(){
+      const {type,id}=actionsCtx;
+      if(!type||!id) return;
+      if(type==="lanc") await editarLanc(id);
+      if(type==="transf") await editarTransf(id);
+      if(type==="conta") await editarConta(id);
       closeActions();
-    };
-    window.actionsDelete = async () => {
-      const {type, id} = actionsCtx;
-      if (!type || !id) return;
-
-      if (type === "lanc") await excluirLancComFuturos(id);
-      if (type === "transf") await excluirTransf(id);
-      if (type === "conta") await excluirConta(id);
-
+    }
+    async function actionsDelete(){
+      const {type,id}=actionsCtx;
+      if(!type||!id) return;
+      if(type==="lanc") await excluirLancComFuturos(id);
+      if(type==="transf") await excluirTransf(id);
+      if(type==="conta") await excluirConta(id);
       closeActions();
-    };
+    }
 
-    // ====== CATEGORIA ======
+    // expõe (IMPORTANTE)
+    window.openActions = openActions;
+    window.closeActions = closeActions;
+    window.actionsEdit = actionsEdit;
+    window.actionsDelete = actionsDelete;
+
+    // ===== Funções do app (restante) =====
     window.novaCategoria = async () => {
-      const n = prompt("Nova categoria:");
-      if (!n) return;
+      const n=prompt("Nova categoria:");
+      if(!n) return;
       await addDoc(collection(db,"users",userId,"categorias"),{nome:n});
       await carregarCategorias();
     };
 
-    // ====== CONTAS ======
     window.criarConta = async () => {
-      try{
-        const nome = ($("contaNome").value || "").trim();
-        const tipo = $("contaTipo").value;
-        const saldoInicial = Number($("contaSaldoInicial").value || 0);
-        if (!nome) return alert("Digite um nome para a conta.");
-
-        await addDoc(collection(db,"users",userId,"contas"),{
-          nome, tipo, saldoInicial, criadoEm:new Date()
-        });
-
-        $("contaNome").value = "";
-        $("contaSaldoInicial").value = "0";
-
-        await carregarContas();
-        renderContas();
-        renderAno();
-        alert("Conta criada!");
-      }catch(e){
-        console.error(e);
-        alert("Erro ao criar conta. Veja o console (F12).");
-      }
+      const nome=($("contaNome").value||"").trim();
+      if(!nome) return alert("Digite o nome.");
+      const tipo=$("contaTipo").value;
+      const saldoInicial=Number($("contaSaldoInicial").value||0);
+      await addDoc(collection(db,"users",userId,"contas"),{nome,tipo,saldoInicial,criadoEm:new Date()});
+      $("contaNome").value=""; $("contaSaldoInicial").value="0";
+      await carregarContas(); renderContas(); renderAno(); renderMes();
     };
 
     async function editarConta(contaId){
-      const c = contas.find(x=>x.id===contaId);
-      if (!c) return;
-
-      const novoNome = prompt("Novo nome da conta:", c.nome ?? "");
-      if (novoNome === null) return;
-      const nome = novoNome.trim();
-      if (!nome) return alert("Nome inválido.");
-
-      const novoSaldo = prompt("Saldo inicial (altere apenas se necessário):", String(c.saldoInicial ?? 0));
-      if (novoSaldo === null) return;
-      const saldoInicial = Number(novoSaldo);
-      if (!Number.isFinite(saldoInicial)) return alert("Saldo inválido.");
-
-      try{
-        await updateDoc(doc(db,"users",userId,"contas",contaId),{nome, saldoInicial});
-        await carregarContas();
-        renderContas();
-        renderAno();
-        renderMes();
-      }catch(e){
-        console.error(e);
-        alert("Erro ao editar conta.");
-      }
+      const c=contas.find(x=>x.id===contaId);
+      if(!c) return;
+      const novoNome=prompt("Novo nome:", c.nome||"");
+      if(novoNome===null) return;
+      const nome=novoNome.trim(); if(!nome) return alert("Nome inválido.");
+      const novoSaldo=prompt("Saldo inicial:", String(c.saldoInicial||0));
+      if(novoSaldo===null) return;
+      const saldoInicial=Number(novoSaldo); if(!Number.isFinite(saldoInicial)) return alert("Saldo inválido.");
+      await updateDoc(doc(db,"users",userId,"contas",contaId),{nome,saldoInicial});
+      await carregarContas(); renderContas(); renderAno(); renderMes();
     }
 
     async function excluirConta(contaId){
-      const c = contas.find(x=>x.id===contaId);
-      if (!c) return;
-
-      if ((c.nome||"").toLowerCase().includes("padrão")) {
-        return alert("A Conta Padrão não pode ser excluída.");
-      }
-
-      const temLanc = dados.some(l => (l.contaId || contas[0]?.id) === contaId);
-      const temTransf = transferencias.some(t => t.origemId === contaId || t.destinoId === contaId);
-
-      if (temLanc || temTransf) {
-        return alert("Essa conta está em uso em lançamentos/transferências. Primeiro edite/apague esses itens, depois exclua a conta.");
-      }
-
-      if (!confirm(`Excluir a conta "${c.nome}"?`)) return;
-
-      try{
-        await deleteDoc(doc(db,"users",userId,"contas",contaId));
-        await carregarContas();
-        renderContas();
-        renderAno();
-        renderMes();
-      }catch(e){
-        console.error(e);
-        alert("Erro ao excluir conta.");
-      }
+      const c=contas.find(x=>x.id===contaId);
+      if(!c) return;
+      if((c.nome||"").toLowerCase().includes("padrão")) return alert("Conta Padrão não pode.");
+      const temLanc=dados.some(l=>(l.contaId||contas[0]?.id)===contaId);
+      const temTransf=transferencias.some(t=>t.origemId===contaId||t.destinoId===contaId);
+      if(temLanc||temTransf) return alert("Conta em uso. Apague/edite lançamentos e transferências antes.");
+      if(!confirm(`Excluir a conta "${c.nome}"?`)) return;
+      await deleteDoc(doc(db,"users",userId,"contas",contaId));
+      await carregarContas(); renderContas(); renderAno(); renderMes();
     }
 
-    // ====== TRANSFERÊNCIAS ======
     window.criarTransferencia = async () => {
-      try{
-        const origemId = $("tOrigem").value;
-        const destinoId = $("tDestino").value;
-        const valor = Number($("tValor").value || 0);
-        const dataStr = $("tData").value;
-        const desc = ($("tDesc").value || "").trim();
-
-        if (!origemId || !destinoId) return alert("Selecione origem e destino.");
-        if (origemId === destinoId) return alert("Origem e destino devem ser diferentes.");
-        if (!valor || valor <= 0) return alert("Informe um valor válido.");
-        if (!dataStr) return alert("Informe a data.");
-
-        const mes = new Date(dataStr).getMonth();
-
-        await addDoc(collection(db,"users",userId,"transferencias"),{
-          origemId, destinoId, valor, data:dataStr, mes,
-          desc, status:"confirmada", criadoEm:new Date()
-        });
-
-        $("tValor").value = "";
-        $("tDesc").value = "";
-
-        await carregarTransferencias();
-        renderTransferenciasMes();
-        renderContas();
-        renderAno();
-        alert("Transferência salva!");
-      }catch(e){
-        console.error(e);
-        alert("Erro ao salvar transferência. Veja o console (F12).");
-      }
+      const origemId=$("tOrigem").value;
+      const destinoId=$("tDestino").value;
+      const valor=Number($("tValor").value||0);
+      const dataStr=$("tData").value;
+      const desc=($("tDesc").value||"").trim();
+      if(!origemId||!destinoId) return alert("Selecione origem e destino.");
+      if(origemId===destinoId) return alert("Origem e destino devem ser diferentes.");
+      if(!valor||valor<=0) return alert("Valor inválido.");
+      if(!dataStr) return alert("Informe a data.");
+      const mes=new Date(dataStr).getMonth();
+      await addDoc(collection(db,"users",userId,"transferencias"),{origemId,destinoId,valor,data:dataStr,mes,desc,status:"confirmada",criadoEm:new Date()});
+      $("tValor").value=""; $("tDesc").value="";
+      await carregarTransferencias(); renderTransferenciasMes(); renderAno(); renderMes(); renderContas();
     };
 
     async function editarTransf(id){
-      const t = transferencias.find(x=>x.id===id);
-      if (!t) return;
-
-      const nv = prompt("Novo valor:", String(t.valor ?? 0));
-      if (nv === null) return;
-      const valor = Number(nv);
-      if (!Number.isFinite(valor) || valor <= 0) return alert("Valor inválido.");
-
-      const nd = prompt("Nova descrição:", String(t.desc ?? ""));
-      if (nd === null) return;
-
-      const newData = prompt("Nova data (AAAA-MM-DD):", String(t.data ?? ""));
-      if (newData === null) return;
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(newData)) return alert("Data inválida. Use AAAA-MM-DD.");
-
-      const mes = new Date(newData).getMonth();
-
-      try{
-        await updateDoc(doc(db,"users",userId,"transferencias",id),{valor, desc:nd, data:newData, mes});
-        await carregarTransferencias();
-        renderTransferenciasMes();
-        renderContas();
-        renderAno();
-      }catch(e){
-        console.error(e);
-        alert("Erro ao editar transferência.");
-      }
+      const t=transferencias.find(x=>x.id===id);
+      if(!t) return;
+      const nv=prompt("Novo valor:", String(t.valor||0));
+      if(nv===null) return;
+      const valor=Number(nv); if(!Number.isFinite(valor)||valor<=0) return alert("Valor inválido.");
+      const nd=prompt("Nova descrição:", String(t.desc||""));
+      if(nd===null) return;
+      const newData=prompt("Nova data (AAAA-MM-DD):", String(t.data||""));
+      if(newData===null) return;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(newData)) return alert("Data inválida.");
+      const mes=new Date(newData).getMonth();
+      await updateDoc(doc(db,"users",userId,"transferencias",id),{valor,desc:nd,data:newData,mes});
+      await carregarTransferencias(); renderTransferenciasMes(); renderAno(); renderMes(); renderContas();
     }
 
     async function excluirTransf(id){
-      const t = transferencias.find(x=>x.id===id);
-      if (!t) return;
-
-      if (!confirm("Excluir esta transferência?")) return;
-
-      try{
-        await deleteDoc(doc(db,"users",userId,"transferencias",id));
-        await carregarTransferencias();
-        renderTransferenciasMes();
-        renderContas();
-        renderAno();
-        renderMes();
-      }catch(e){
-        console.error(e);
-        alert("Erro ao excluir transferência.");
-      }
+      if(!confirm("Excluir esta transferência?")) return;
+      await deleteDoc(doc(db,"users",userId,"transferencias",id));
+      await carregarTransferencias(); renderTransferenciasMes(); renderAno(); renderMes(); renderContas();
     }
 
-    // ====== LANÇAMENTOS ======
     window.adicionarLancamento = async () => {
-      if (!$("tipo").value || !$("categoria").value || !$("valor").value || !$("data").value || !$("repete").value) {
-        return alert("Preencha todos os campos");
-      }
+      if(!$("tipo").value||!$("categoria").value||!$("valor").value||!$("data").value||!$("repete").value) return alert("Preencha tudo.");
+      const contaId=$("contaLanc").value || (contas[0]?.id ?? null);
+      const valorTotal=Number($("valor").value);
+      const dataStr=$("data").value;
+      const mesBase=new Date(dataStr).getMonth();
+      const grupo=String(Date.now())+"_"+Math.floor(Math.random()*1e6);
 
-      const contaId = $("contaLanc").value || (contas[0]?.id ?? null);
+      const base={tipo:$("tipo").value,cat:$("categoria").value,desc:$("desc").value||"",mes:mesBase,data:dataStr,grupo,status:"pendente",contaId};
 
-      const valorTotal = Number($("valor").value);
-      const dataStr = $("data").value;
-      const mesBase = new Date(dataStr).getMonth();
-      const grupo = String(Date.now()) + "_" + Math.floor(Math.random()*1e6);
+      const salvar = (o)=>addDoc(collection(db,"users",userId,"lancamentos"),o);
 
-      const base = {
-        tipo: $("tipo").value,
-        cat: $("categoria").value,
-        desc: $("desc").value || "",
-        mes: mesBase,
-        data: dataStr,
-        grupo,
-        status: "pendente",
-        contaId
-      };
-
-      async function salvar(o){ await addDoc(collection(db,"users",userId,"lancamentos"), o); }
-
-      if ($("repete").value === "fixa") {
-        for (let m=mesBase; m<12; m++) await salvar({ ...base, mes:m, valor:valorTotal, fixed:true });
-      } else if ($("repete").value === "parcelada") {
-        const p = Number($("parcelas").value || 2);
-        const vp = valorTotal / p;
-        for (let i=0; i<p; i++) await salvar({ ...base, mes:(mesBase+i)%12, valor:vp, parcela:i+1, total:p });
+      if($("repete").value==="fixa"){
+        for(let m=mesBase;m<12;m++) await salvar({...base,mes:m,valor:valorTotal,fixed:true});
+      } else if($("repete").value==="parcelada"){
+        const p=Number($("parcelas").value||2);
+        const vp=valorTotal/p;
+        for(let i=0;i<p;i++) await salvar({...base,mes:(mesBase+i)%12,valor:vp,parcela:i+1,total:p});
       } else {
-        await salvar({ ...base, valor:valorTotal });
+        await salvar({...base,valor:valorTotal});
       }
 
       $("desc").value=""; $("valor").value=""; $("repete").value=""; $("parcelas").value=2;
       $("parcelasBox").classList.add("hidden");
 
-      await carregarLancamentos();
-      renderMes();
-      renderAno();
-      renderContas();
+      await carregarLancamentos(); renderMes(); renderAno(); renderContas();
+    };
+
+    window.pagar = async (id)=>{
+      await updateDoc(doc(db,"users",userId,"lancamentos",id),{status:"pago"});
+      await carregarLancamentos(); renderMes(); renderAno(); renderContas();
+    };
+    window.voltar = async (id)=>{
+      await updateDoc(doc(db,"users",userId,"lancamentos",id),{status:"pendente"});
+      await carregarLancamentos(); renderMes(); renderAno(); renderContas();
     };
 
     async function editarLanc(id){
-      const l = dados.find(i=>i.id===id);
-      if (!l) return;
-
-      const nv = prompt("Novo valor:", String(l.valor ?? ""));
-      if (nv === null) return;
-      const num = Number(nv);
-      if (!Number.isFinite(num) || num < 0) return alert("Valor inválido.");
-
-      try{
-        await updateDoc(doc(db,"users",userId,"lancamentos",id),{valor:num});
-        await carregarLancamentos();
-        renderMes(); renderAno(); renderContas();
-      }catch(e){
-        console.error(e);
-        alert("Erro ao editar lançamento.");
-      }
+      const l=dados.find(x=>x.id===id);
+      if(!l) return;
+      const nv=prompt("Novo valor:", String(l.valor||0));
+      if(nv===null) return;
+      const valor=Number(nv); if(!Number.isFinite(valor)||valor<0) return alert("Valor inválido.");
+      await updateDoc(doc(db,"users",userId,"lancamentos",id),{valor});
+      await carregarLancamentos(); renderMes(); renderAno(); renderContas();
     }
 
-    // ✅ Exclui este lançamento + futuros pendentes do mesmo grupo
     async function excluirLancComFuturos(id){
-      const item = dados.find(i=>i.id===id);
-      if (!item) return;
+      const item=dados.find(x=>x.id===id);
+      if(!item) return;
+      if(!confirm("Excluir este lançamento e todos os futuros pendentes do mesmo grupo?")) return;
 
-      if (!confirm("Excluir este lançamento e todos os futuros pendentes deste mesmo grupo?")) return;
+      const grupo=item.grupo;
+      const mesAtual=Number(item.mes);
 
-      const grupo = item.grupo;
-      const mesAtual = Number(item.mes);
+      const q=query(collection(db,"users",userId,"lancamentos"), where("grupo","==",grupo));
+      const snap=await getDocs(q);
 
-      try{
-        // pega todos do grupo
-        const q = query(collection(db,"users",userId,"lancamentos"), where("grupo","==",grupo));
-        const snap = await getDocs(q);
-
-        // regra: apaga:
-        // - o item clicado (sempre)
-        // - os itens do mesmo grupo com status pendente e mes >= mesAtual
-        for (const d of snap.docs) {
-          const data = d.data();
-          const docId = d.id;
-
-          const isThis = (docId === id);
-          const isFuturePending = (data.status === "pendente" && Number(data.mes) >= mesAtual);
-
-          if (isThis || isFuturePending) {
-            await deleteDoc(d.ref);
-          }
-        }
-
-        await carregarLancamentos();
-        renderMes(); renderAno(); renderContas();
-      }catch(e){
-        console.error(e);
-        alert("Erro ao excluir lançamentos do grupo.");
+      for(const d of snap.docs){
+        const v=d.data();
+        const docId=d.id;
+        const isThis=(docId===id);
+        const isFuturePending=(v.status==="pendente" && Number(v.mes)>=mesAtual);
+        if(isThis || isFuturePending) await deleteDoc(d.ref);
       }
+
+      await carregarLancamentos(); renderMes(); renderAno(); renderContas();
     }
 
-    window.pagar = async (id) => {
-      await updateDoc(doc(db,"users",userId,"lancamentos",id),{status:"pago"});
-      await carregarLancamentos();
-      renderMes(); renderAno(); renderContas();
-    };
-
-    window.voltar = async (id) => {
-      await updateDoc(doc(db,"users",userId,"lancamentos",id),{status:"pendente"});
-      await carregarLancamentos();
-      renderMes(); renderAno(); renderContas();
-    };
-
-    // ====== RENDER ======
     function nomeConta(id){
-      const c = contas.find(x=>x.id===id);
-      return c ? c.nome : "Conta Padrão";
+      const c=contas.find(x=>x.id===id);
+      return c?c.nome:"Conta";
     }
 
     function saldoConta(contaId){
-      const conta = contas.find(c=>c.id===contaId);
-      let saldo = Number(conta?.saldoInicial || 0);
+      const conta=contas.find(c=>c.id===contaId);
+      let saldo=Number(conta?.saldoInicial||0);
 
-      for (const l of dados) {
-        const lConta = l.contaId || contas[0]?.id;
-        if (l.status !== "pago") continue;
-        if (lConta !== contaId) continue;
-        if (l.tipo === "receita") saldo += Number(l.valor||0);
-        if (l.tipo === "despesa") saldo -= Number(l.valor||0);
+      for(const l of dados){
+        const lConta=l.contaId||contas[0]?.id;
+        if(l.status!=="pago") continue;
+        if(lConta!==contaId) continue;
+        if(l.tipo==="receita") saldo += Number(l.valor||0);
+        if(l.tipo==="despesa") saldo -= Number(l.valor||0);
       }
-
-      for (const t of transferencias) {
-        if (t.status !== "confirmada") continue;
-        if (t.origemId === contaId) saldo -= Number(t.valor||0);
-        if (t.destinoId === contaId) saldo += Number(t.valor||0);
+      for(const t of transferencias){
+        if(t.status!=="confirmada") continue;
+        if(t.origemId===contaId) saldo -= Number(t.valor||0);
+        if(t.destinoId===contaId) saldo += Number(t.valor||0);
       }
-
       return saldo;
     }
 
     function saldoTotalTodasContas(){
-      return contas.reduce((acc,c)=>acc + saldoConta(c.id), 0);
+      return contas.reduce((acc,c)=>acc+saldoConta(c.id),0);
     }
 
-    window.renderMes = () => {
-      const mes = Number($("mesSelecionado").value);
+    window.renderMes = ()=>{
+      const mes=Number($("mesSelecionado").value);
 
-      // totais (não filtrados)
-      let r = 0, d = 0;
-      const cat = {};
+      let r=0,d=0;
+      const cat={};
+      const itensMes=dados.filter(i=>Number(i.mes)===mes);
 
-      const itensMes = dados.filter(i => Number(i.mes) === mes);
-
-      for (const i of itensMes) {
-        if (i.status === "pago") {
-          if (i.tipo === "receita") r += Number(i.valor||0);
-          else d += Number(i.valor||0);
-          if (i.tipo === "despesa") cat[i.cat] = (cat[i.cat] || 0) + Number(i.valor||0);
+      for(const i of itensMes){
+        if(i.status==="pago"){
+          if(i.tipo==="receita") r+=Number(i.valor||0);
+          else d+=Number(i.valor||0);
+          if(i.tipo==="despesa") cat[i.cat]=(cat[i.cat]||0)+Number(i.valor||0);
         }
       }
 
-      $("rMes").innerText = `R$ ${r.toFixed(2)}`;
-      $("dMes").innerText = `R$ ${d.toFixed(2)}`;
-      $("sMes").innerText = `R$ ${(r-d).toFixed(2)}`;
+      $("rMes").innerText=`R$ ${r.toFixed(2)}`;
+      $("dMes").innerText=`R$ ${d.toFixed(2)}`;
+      $("sMes").innerText=`R$ ${(r-d).toFixed(2)}`;
 
-      // filtros da lista
-      const fConta = $("fConta").value;
-      const fStatus = $("fStatus").value;
-      const fBusca = ($("fBusca").value || "").trim().toLowerCase();
+      const fConta=$("fConta").value;
+      const fStatus=$("fStatus").value;
+      const fBusca=($("fBusca").value||"").trim().toLowerCase();
 
-      let lista = itensMes.slice();
-      if (fConta !== "todas") {
-        lista = lista.filter(i => (i.contaId || contas[0]?.id) === fConta);
-      }
-      if (fStatus !== "todos") {
-        lista = lista.filter(i => i.status === fStatus);
-      }
-      if (fBusca) {
-        lista = lista.filter(i =>
-          String(i.cat||"").toLowerCase().includes(fBusca) ||
-          String(i.desc||"").toLowerCase().includes(fBusca)
-        );
-      }
+      let lista=itensMes.slice();
+      if(fConta!=="todas") lista = lista.filter(i=>(i.contaId||contas[0]?.id)===fConta);
+      if(fStatus!=="todos") lista = lista.filter(i=>i.status===fStatus);
+      if(fBusca) lista = lista.filter(i=>String(i.cat||"").toLowerCase().includes(fBusca)||String(i.desc||"").toLowerCase().includes(fBusca));
+      lista.sort((a,b)=>String(a.data||"").localeCompare(String(b.data||"")));
 
-      lista.sort((a,b)=> String(a.data||"").localeCompare(String(b.data||"")));
+      $("listaMes").innerHTML="<h2>Lançamentos</h2>";
+      for(const i of lista){
+        const statusTxt=(i.status==="pago")?"Pago":"Pendente";
+        const contaNome=nomeConta(i.contaId||contas[0]?.id);
+        let info=i.desc||"";
+        if(i.parcela) info+=` (${i.parcela}/${i.total})`;
+        if(i.fixed) info+=" (Fixa)";
 
-      $("listaMes").innerHTML = "<h2>Lançamentos</h2>";
-
-      for (const i of lista) {
-        const statusTxt = (i.status === "pago") ? "Pago" : "Pendente";
-        const contaNome = nomeConta(i.contaId || contas[0]?.id);
-
-        let info = i.desc || "";
-        if (i.parcela) info += ` (${i.parcela}/${i.total})`;
-        if (i.fixed) info += " (Fixa)";
-
-        const div = document.createElement("div");
-        div.className = "tx";
-
-        const isPendente = i.status === "pendente";
-
-        div.innerHTML = `
+        const div=document.createElement("div");
+        div.className="tx";
+        div.innerHTML=`
           <div>
             <div class="title">${i.cat}</div>
             <div class="meta">${info} • ${contaNome} • ${statusTxt}</div>
           </div>
-
           <div class="right">
             <div class="amount ${i.tipo==='receita'?'rec':'desp'}">R$ ${Number(i.valor||0).toFixed(2)}</div>
-
             ${
-              isPendente
-              ? `<button class="iconBtn ok" title="Confirmar pagamento" onclick="pagar('${i.id}')">✔</button>`
-              : `<button class="iconBtn undo" title="Marcar como pendente" onclick="voltar('${i.id}')">↩</button>`
+              i.status==="pendente"
+                ? `<button class="iconBtn ok" onclick="pagar('${i.id}')" title="Confirmar">✔</button>`
+                : `<button class="iconBtn undo" onclick="voltar('${i.id}')" title="Voltar">↩</button>`
             }
-
-            <button class="iconBtn" title="Editar/Excluir" onclick="openActions('lanc','${i.id}','Ações do lançamento')">⋯</button>
+            <button class="iconBtn" onclick="openActions('lanc','${i.id}','Ações do lançamento')" title="Mais">⋯</button>
           </div>
         `;
-
         $("listaMes").appendChild(div);
       }
 
-      if (!grafMes) {
-        grafMes = new Chart($("graficoMes"), {
-          type:'pie',
-          data:{ labels:[], datasets:[{ data:[], backgroundColor:["#22c55e","#3b82f6","#f59e0b","#ef4444","#a855f7","#14b8a6"] }] }
-        });
+      if(!grafMes){
+        grafMes=new Chart($("graficoMes"),{type:"pie",data:{labels:[],datasets:[{data:[],backgroundColor:["#22c55e","#3b82f6","#f59e0b","#ef4444","#a855f7","#14b8a6"]}]}} );
       }
-      grafMes.data.labels = Object.keys(cat);
-      grafMes.data.datasets[0].data = Object.values(cat);
+      grafMes.data.labels=Object.keys(cat);
+      grafMes.data.datasets[0].data=Object.values(cat);
       grafMes.update();
 
       renderTransferenciasMes();
     };
 
-    window.renderAno = () => {
-      let rM = Array(12).fill(0), dM = Array(12).fill(0), r=0, d=0;
-      for (const i of dados) {
-        if (i.status !== "pago") continue;
-        const m = Number(i.mes);
-        if (i.tipo === "receita") { r += Number(i.valor||0); rM[m] += Number(i.valor||0); }
-        else { d += Number(i.valor||0); dM[m] += Number(i.valor||0); }
+    window.renderAno = ()=>{
+      let rM=Array(12).fill(0), dM=Array(12).fill(0), r=0, d=0;
+      for(const i of dados){
+        if(i.status!=="pago") continue;
+        const m=Number(i.mes);
+        if(i.tipo==="receita"){ r+=Number(i.valor||0); rM[m]+=Number(i.valor||0); }
+        else { d+=Number(i.valor||0); dM[m]+=Number(i.valor||0); }
       }
+      $("rAno").innerText=`R$ ${r.toFixed(2)}`;
+      $("dAno").innerText=`R$ ${d.toFixed(2)}`;
+      $("sAno").innerText=`R$ ${(r-d).toFixed(2)}`;
+      $("saldoTotal").innerText=`R$ ${saldoTotalTodasContas().toFixed(2)}`;
 
-      $("rAno").innerText = `R$ ${r.toFixed(2)}`;
-      $("dAno").innerText = `R$ ${d.toFixed(2)}`;
-      $("sAno").innerText = `R$ ${(r-d).toFixed(2)}`;
-      $("saldoTotal").innerText = `R$ ${saldoTotalTodasContas().toFixed(2)}`;
-
-      if (!grafAno) {
-        grafAno = new Chart($("graficoAno"), {
-          type:'bar',
-          data:{ labels: mesesNomes, datasets:[
-            {label:'Receitas', data:[], backgroundColor:"#22c55e"},
-            {label:'Despesas', data:[], backgroundColor:"#ef4444"}
-          ]}
-        });
+      if(!grafAno){
+        grafAno=new Chart($("graficoAno"),{type:"bar",data:{labels:mesesNomes,datasets:[{label:"Receitas",data:[],backgroundColor:"#22c55e"},{label:"Despesas",data:[],backgroundColor:"#ef4444"}]}});
       }
-      grafAno.data.datasets[0].data = rM;
-      grafAno.data.datasets[1].data = dM;
+      grafAno.data.datasets[0].data=rM;
+      grafAno.data.datasets[1].data=dM;
       grafAno.update();
     };
 
-    window.renderContas = () => {
-      $("listaContas").innerHTML = `
-        <h2>Saldos por conta</h2>
-        <div class="mini">Baseado em lançamentos <b>pagos</b> e transferências <b>confirmadas</b>.</div>
-        <div class="accountsGrid" id="accGrid"></div>
-      `;
-
-      const grid = document.getElementById("accGrid");
+    window.renderContas = ()=>{
+      $("listaContas").innerHTML=`<h2>Saldos por conta</h2><div class="accountsGrid" id="accGrid"></div>`;
+      const grid=$("accGrid");
+      grid.innerHTML="";
 
       contas.forEach(c=>{
-        const saldo = saldoConta(c.id);
-        const posNeg = saldo >= 0 ? "pos" : "neg";
-
-        const div = document.createElement("div");
-        div.className = "acc";
-        div.innerHTML = `
+        const saldo=saldoConta(c.id);
+        const posNeg=saldo>=0?"pos":"neg";
+        const div=document.createElement("div");
+        div.className="acc";
+        div.innerHTML=`
           <div>
             <div class="name">${c.nome}</div>
             <div class="type">${c.tipo} • saldo inicial: R$ ${Number(c.saldoInicial||0).toFixed(2)}</div>
           </div>
-
-          <div style="display:flex; gap:10px; align-items:flex-start;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
             <div class="bal ${posNeg}">R$ ${saldo.toFixed(2)}</div>
-            <button class="iconBtn" title="Editar/Excluir conta" onclick="openActions('conta','${c.id}','Ações da conta')">⋯</button>
+            <button class="iconBtn" onclick="openActions('conta','${c.id}','Ações da conta')">⋯</button>
           </div>
         `;
         grid.appendChild(div);
       });
     };
 
-    window.renderTransferenciasMes = () => {
-      const mes = Number($("mesSelecionado").value);
-      $("listaTransf").innerHTML = "";
+    window.renderTransferenciasMes = ()=>{
+      const mes=Number($("mesSelecionado").value);
+      $("listaTransf").innerHTML="<h2>Transferências do mês</h2>";
 
-      const itens = transferencias
-        .filter(t => Number(t.mes) === mes)
-        .sort((a,b)=> String(a.data||"").localeCompare(String(b.data||"")));
-
-      if (itens.length === 0) {
-        $("listaTransf").innerHTML = `<div class="mini">Nenhuma transferência neste mês.</div>`;
+      const itens=transferencias.filter(t=>Number(t.mes)===mes).sort((a,b)=>String(a.data||"").localeCompare(String(b.data||"")));
+      if(itens.length===0){
+        $("listaTransf").innerHTML += `<div class="mini">Nenhuma transferência neste mês.</div>`;
         return;
       }
 
       itens.forEach(t=>{
-        const div = document.createElement("div");
-        div.className = "tr";
-        div.innerHTML = `
+        const div=document.createElement("div");
+        div.className="tr";
+        div.innerHTML=`
           <div>
             <div class="title">${nomeConta(t.origemId)} → ${nomeConta(t.destinoId)}</div>
-            <div class="meta">${t.desc || ""} • ${t.data || ""}</div>
+            <div class="meta">${t.desc||""} • ${t.data||""}</div>
           </div>
           <div style="display:flex;gap:10px;align-items:center;">
             <div class="val">R$ ${Number(t.valor||0).toFixed(2)}</div>
-            <button class="iconBtn" title="Editar/Excluir transferência" onclick="openActions('transf','${t.id}','Ações da transferência')">⋯</button>
+            <button class="iconBtn" onclick="openActions('transf','${t.id}','Ações da transferência')">⋯</button>
           </div>
         `;
         $("listaTransf").appendChild(div);
       });
     };
 
-    // ====== FILTRO CONTAS ======
-    function preencherFiltroContas(){
-      const sel = $("fConta");
-      const atual = sel.value || "todas";
-      sel.innerHTML = `<option value="todas">Todas as contas</option>`;
-      contas.forEach(c=>{
-        const o = document.createElement("option");
-        o.value = c.id;
-        o.text = c.nome;
-        sel.appendChild(o);
-      });
-      sel.value = Array.from(sel.options).some(o=>o.value===atual) ? atual : "todas";
-    }
+    onAuthStateChanged(auth, async (u)=>{
+      // garante que modal fique fechado ao carregar
+      $("actionsBack").classList.add("hidden");
 
-    // ====== AUTH ======
-    onAuthStateChanged(auth, async (u) => {
-      if (u) {
-        userId = u.uid;
+      if(u){
+        userId=u.uid;
         $("loginScreen").classList.add("hidden");
         $("cadastroScreen").classList.add("hidden");
         $("appScreen").classList.remove("hidden");
-
         await carregarTudo();
-      } else {
+      }else{
         $("appScreen").classList.add("hidden");
         showLogin();
       }
     });
-
-    // expõe para HTML
-    window.openActions = openActions;
-    window.editarConta = editarConta;
-    window.excluirConta = excluirConta;
-    window.editarLanc = editarLanc;
-    window.excluirLancComFuturos = excluirLancComFuturos;
-    window.editarTransf = editarTransf;
-    window.excluirTransf = excluirTransf;
   </script>
 </body>
 </html>
