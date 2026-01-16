@@ -32,7 +32,7 @@
       padding:14px;
     }
 
-    .container{max-width:560px;margin:auto;}
+    .container{max-width:620px;margin:auto;}
     h1{text-align:center;margin:10px 0 12px;font-size:1.35rem;letter-spacing:.2px;}
     h2{margin:0 0 10px 0;font-size:1.05rem;}
     .hidden{display:none!important;}
@@ -68,6 +68,10 @@
 
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    @media (max-width:520px){
+      .row3{grid-template-columns:1fr;gap:10px;}
+      .row2{grid-template-columns:1fr;gap:10px;}
+    }
 
     .top-tabs{
       display:flex;
@@ -77,7 +81,7 @@
     }
     .top-tabs button{
       flex:1;
-      min-width:120px;
+      min-width:130px;
       padding:11px 12px;
       border-radius:14px;
       border:1px solid var(--border);
@@ -124,6 +128,18 @@
       font-weight:800;
       margin-top:8px;
     }
+    .btnGhost{
+      width:100%;
+      padding:11px 14px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-weight:850;
+      margin-top:8px;
+    }
+    .btnGhost:hover{background: rgba(255,255,255,0.07);}
+
     .plus{
       width:44px;margin-left:8px;padding:10px;border-radius:14px;
       background: rgba(34,197,94,1);border:none;color:#052e16;font-weight:950;
@@ -141,6 +157,38 @@
     }
     .mini{font-size:.78rem;color:var(--muted);line-height:1.35}
 
+    /* Accordion (menus suspensos) */
+    details.accordion{
+      border:1px solid rgba(148,163,184,0.18);
+      border-radius:18px;
+      background: rgba(255,255,255,0.03);
+      overflow:hidden;
+      margin-top:14px;
+      box-shadow: var(--shadow);
+    }
+    details.accordion summary{
+      list-style:none;
+      cursor:pointer;
+      padding:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:950;
+      color:var(--text);
+    }
+    details.accordion summary::-webkit-details-marker{display:none;}
+    .accBody{padding:0 14px 14px 14px;}
+    .chev{
+      width:40px;height:36px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;
+    }
+
+    /* Listas */
     .tx{
       display:grid;
       grid-template-columns: 1fr auto;
@@ -208,6 +256,7 @@
     .tr .meta{font-size:.78rem;color:var(--muted);margin-top:2px}
     .tr .val{font-weight:950;min-width:115px;text-align:right;font-variant-numeric: tabular-nums;}
 
+    /* Modal (Ações e Edição completa) */
     .modalBack{
       position:fixed;
       inset:0;
@@ -220,7 +269,7 @@
     }
     .modal{
       width:100%;
-      max-width:560px;
+      max-width:620px;
       background: rgba(2,6,23,0.95);
       border:1px solid var(--border);
       border-radius:18px;
@@ -235,11 +284,7 @@
       gap:10px;
       align-items:center;
     }
-    .modalTitle{
-      font-weight:950;
-      font-size:.95rem;
-      color: var(--text);
-    }
+    .modalTitle{font-weight:950;font-size:.95rem;color: var(--text);}
     .modalClose{
       width:42px;height:38px;
       border-radius:12px;
@@ -248,7 +293,7 @@
       color: var(--text);
       font-weight:900;
     }
-    .modalBody{padding:10px 14px;}
+    .modalBody{padding:10px 14px 14px 14px;}
     .modalBtn{
       width:100%;
       padding:12px 14px;
@@ -263,12 +308,25 @@
     .modalBtn:hover{background: rgba(255,255,255,0.07);}
     .modalBtn.edit{border-color: rgba(245,158,11,0.35); color: var(--warn);}
     .modalBtn.del{border-color: rgba(239,68,68,0.35); color: var(--danger);}
+    .modalBtn.ok{border-color: rgba(34,197,94,0.35); color: var(--primary);}
+
+    .badge{
+      display:inline-flex;
+      padding:5px 9px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted);
+      font-size:.74rem;
+      gap:6px;
+      align-items:center;
+    }
   </style>
 </head>
 
 <body>
   <div class="container">
 
+    <!-- LOGIN -->
     <div id="loginScreen">
       <h1>🔐 Finanças em Dia</h1>
       <div class="box">
@@ -282,6 +340,7 @@
       </div>
     </div>
 
+    <!-- CADASTRO -->
     <div id="cadastroScreen" class="hidden">
       <h1>📝 Criar Conta</h1>
       <div class="box">
@@ -293,117 +352,43 @@
       </div>
     </div>
 
+    <!-- APP -->
     <div id="appScreen" class="hidden">
       <h1>💰 Finanças em Dia</h1>
 
+      <!-- Ano selecionado -->
+      <div class="box" style="margin-top:0;">
+        <div class="row2">
+          <div class="field" style="margin-bottom:0;">
+            <label>Ano</label>
+            <select id="anoSelecionado"></select>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label>Atalhos</label>
+            <button class="btnGhost" onclick="showTela('ano')">Abrir Resumo Anual</button>
+          </div>
+        </div>
+        <div class="mini">Ao virar o ano, é só trocar o seletor (o app separa seus dados por <b>ano</b>).</div>
+      </div>
+
       <div class="top-tabs">
-        <button id="tabMes" class="active" onclick="showTela('mes')">Mês</button>
-        <button id="tabAno" onclick="showTela('ano')">Resumo Anual</button>
+        <button id="tabAno" class="active" onclick="showTela('ano')">Resumo Anual</button>
+        <button id="tabMes" onclick="showTela('mes')">Mês</button>
         <button id="tabContas" onclick="showTela('contas')">Contas</button>
         <button id="tabTransf" onclick="showTela('transf')">Transferências</button>
+        <button id="tabCat" onclick="showTela('cats')">Categorias</button>
       </div>
 
-      <div id="telaMes">
-        <div class="box">
-          <div class="field">
-            <label>Mês</label>
-            <select id="mesSelecionado" onchange="renderMes()"></select>
-          </div>
-
-          <div class="row3">
-            <div class="field">
-              <label>Filtrar por conta</label>
-              <select id="fConta" onchange="renderMes()"></select>
-            </div>
-            <div class="field">
-              <label>Status</label>
-              <select id="fStatus" onchange="renderMes()">
-                <option value="todos">Todos</option>
-                <option value="pendente">Pendente</option>
-                <option value="pago">Pago</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Buscar</label>
-              <input id="fBusca" placeholder="categoria ou descrição" oninput="renderMes()">
-            </div>
-          </div>
-
-          <div class="mini">
-            <span class="pill">Dica</span>
-            Filtros só afetam a lista. Os totais do mês continuam considerando <b>pagos</b>.
-          </div>
-        </div>
-
+      <!-- TELA ANO (virou a principal) -->
+      <div id="telaAno">
         <div class="cards">
-          <div class="card"><h3>Receitas Pagas</h3><div class="value" id="rMes">R$0</div></div>
-          <div class="card"><h3>Despesas Pagas</h3><div class="value" id="dMes">R$0</div></div>
-          <div class="card saldo"><h3>Saldo do Mês</h3><div class="value" id="sMes">R$0</div><div class="sub">Receitas - Despesas (pagas)</div></div>
-        </div>
-
-        <div class="form">
-          <h2>Novo Lançamento</h2>
-
-          <div class="row2">
-            <div class="field">
-              <label>Tipo</label>
-              <select id="tipo">
-                <option value="">Selecione</option>
-                <option value="receita">Receita</option>
-                <option value="despesa">Despesa</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label>Conta</label>
-              <select id="contaLanc"></select>
-            </div>
+          <div class="card"><h3>Receitas do Ano</h3><div class="value" id="rAno">R$0</div></div>
+          <div class="card"><h3>Despesas do Ano</h3><div class="value" id="dAno">R$0</div></div>
+          <div class="card saldo">
+            <h3>Saldo do Ano</h3>
+            <div class="value" id="sAno">R$0</div>
+            <div class="sub">Somente lançamentos pagos</div>
           </div>
-
-          <div class="field">
-            <label>Categoria</label>
-            <div style="display:flex;align-items:center;">
-              <select id="categoria"></select>
-              <button class="plus" onclick="novaCategoria()" title="Nova categoria">+</button>
-            </div>
-          </div>
-
-          <div class="field"><label>Descrição</label><input id="desc"/></div>
-
-          <div class="row2">
-            <div class="field"><label>Valor (TOTAL)</label><input id="valor" type="number" step="0.01"/></div>
-            <div class="field"><label>Data</label><input id="data" type="date"/></div>
-          </div>
-
-          <div class="row2">
-            <div class="field">
-              <label>Tipo de Lançamento</label>
-              <select id="repete">
-                <option value="">Selecione</option>
-                <option value="variavel">Única</option>
-                <option value="fixa">Fixa</option>
-                <option value="parcelada">Parcelada</option>
-              </select>
-            </div>
-
-            <div class="field hidden" id="parcelasBox">
-              <label>Parcelas</label>
-              <input id="parcelas" type="number" value="2" min="2"/>
-            </div>
-          </div>
-
-          <button class="main" onclick="adicionarLancamento()">Adicionar</button>
-        </div>
-
-        <div class="list" id="listaMes"></div>
-        <div class="chart-box"><canvas id="graficoMes"></canvas></div>
-      </div>
-
-      <div id="telaAno" class="hidden">
-        <div class="cards">
-          <div class="card"><h3>Receitas Ano</h3><div class="value" id="rAno">R$0</div></div>
-          <div class="card"><h3>Despesas Ano</h3><div class="value" id="dAno">R$0</div></div>
-          <div class="card saldo"><h3>Saldo Ano</h3><div class="value" id="sAno">R$0</div><div class="sub">Somente pagos</div></div>
         </div>
 
         <div class="box">
@@ -417,65 +402,197 @@
         <div class="chart-box"><canvas id="graficoAno"></canvas></div>
       </div>
 
-      <div id="telaContas" class="hidden">
+      <!-- TELA MÊS -->
+      <div id="telaMes" class="hidden">
         <div class="box">
-          <h2>Minhas Contas</h2>
-
-          <div class="row2">
-            <div class="field"><label>Nome</label><input id="contaNome"></div>
-            <div class="field">
-              <label>Tipo</label>
-              <select id="contaTipo">
-                <option value="corrente">Corrente</option>
-                <option value="poupanca">Poupança</option>
-                <option value="cofrinho">Cofrinho</option>
-                <option value="cartao">Cartão</option>
-              </select>
-            </div>
+          <div class="field">
+            <label>Mês</label>
+            <select id="mesSelecionado"></select>
           </div>
-
-          <div class="field"><label>Saldo inicial</label><input id="contaSaldoInicial" type="number" step="0.01" value="0"></div>
-          <button class="main" onclick="criarConta()">Criar conta</button>
         </div>
+
+        <div class="cards">
+          <div class="card"><h3>Receitas Pagas</h3><div class="value" id="rMes">R$0</div></div>
+          <div class="card"><h3>Despesas Pagas</h3><div class="value" id="dMes">R$0</div></div>
+          <div class="card saldo"><h3>Saldo do Mês</h3><div class="value" id="sMes">R$0</div><div class="sub">Somente pagos</div></div>
+        </div>
+
+        <!-- Filtros (menu suspenso) -->
+        <details class="accordion" id="accFiltros">
+          <summary>
+            <span>🔎 Filtros</span>
+            <span class="chev">⌄</span>
+          </summary>
+          <div class="accBody">
+            <div class="row3">
+              <div class="field">
+                <label>Conta</label>
+                <select id="fConta"></select>
+              </div>
+              <div class="field">
+                <label>Status</label>
+                <select id="fStatus">
+                  <option value="todos">Todos</option>
+                  <option value="pendente">Pendente</option>
+                  <option value="pago">Pago</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Buscar</label>
+                <input id="fBusca" placeholder="categoria ou descrição">
+              </div>
+            </div>
+            <button class="btnGhost" onclick="limparFiltros()">Limpar filtros</button>
+          </div>
+        </details>
+
+        <!-- Novo lançamento (menu suspenso) -->
+        <details class="accordion" id="accNovoLanc">
+          <summary>
+            <span>➕ Novo lançamento</span>
+            <span class="chev">⌄</span>
+          </summary>
+          <div class="accBody">
+            <div class="row2">
+              <div class="field">
+                <label>Tipo</label>
+                <select id="tipo">
+                  <option value="">Selecione</option>
+                  <option value="receita">Receita</option>
+                  <option value="despesa">Despesa</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Conta</label>
+                <select id="contaLanc"></select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Categoria</label>
+              <div style="display:flex;align-items:center;">
+                <select id="categoria"></select>
+                <button class="plus" onclick="abrirGerenciarCategorias()" title="Gerenciar categorias">⚙</button>
+              </div>
+            </div>
+
+            <div class="field"><label>Descrição</label><input id="desc"/></div>
+
+            <div class="row2">
+              <div class="field"><label>Valor (TOTAL)</label><input id="valor" type="number" step="0.01"/></div>
+              <div class="field"><label>Data</label><input id="data" type="date"/></div>
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <label>Tipo de Lançamento</label>
+                <select id="repete">
+                  <option value="">Selecione</option>
+                  <option value="variavel">Única</option>
+                  <option value="fixa">Fixa</option>
+                  <option value="parcelada">Parcelada</option>
+                </select>
+              </div>
+              <div class="field hidden" id="parcelasBox">
+                <label>Parcelas</label>
+                <input id="parcelas" type="number" value="2" min="2"/>
+              </div>
+            </div>
+
+            <button class="main" onclick="adicionarLancamento()">Adicionar</button>
+          </div>
+        </details>
+
+        <div class="list" id="listaMes"></div>
+        <div class="chart-box"><canvas id="graficoMes"></canvas></div>
+      </div>
+
+      <!-- CONTAS -->
+      <div id="telaContas" class="hidden">
+        <details class="accordion" id="accNovaConta">
+          <summary>
+            <span>🏦 Nova conta</span>
+            <span class="chev">⌄</span>
+          </summary>
+          <div class="accBody">
+            <div class="row2">
+              <div class="field"><label>Nome</label><input id="contaNome"></div>
+              <div class="field">
+                <label>Tipo</label>
+                <select id="contaTipo">
+                  <option value="corrente">Corrente</option>
+                  <option value="poupanca">Poupança</option>
+                  <option value="cofrinho">Cofrinho</option>
+                  <option value="cartao">Cartão</option>
+                </select>
+              </div>
+            </div>
+            <div class="field"><label>Saldo inicial</label><input id="contaSaldoInicial" type="number" step="0.01" value="0"></div>
+            <button class="main" onclick="criarConta()">Criar conta</button>
+          </div>
+        </details>
 
         <div class="list" id="listaContas"></div>
       </div>
 
+      <!-- TRANSFERÊNCIAS -->
       <div id="telaTransf" class="hidden">
-        <div class="form">
-          <h2>Nova Transferência</h2>
+        <details class="accordion" id="accNovaTransf" open>
+          <summary>
+            <span>🔁 Nova transferência</span>
+            <span class="chev">⌄</span>
+          </summary>
+          <div class="accBody">
+            <div class="row2">
+              <div class="field"><label>Origem</label><select id="tOrigem"></select></div>
+              <div class="field"><label>Destino</label><select id="tDestino"></select></div>
+            </div>
 
-          <div class="row2">
-            <div class="field"><label>Origem</label><select id="tOrigem"></select></div>
-            <div class="field"><label>Destino</label><select id="tDestino"></select></div>
+            <div class="row2">
+              <div class="field"><label>Valor</label><input id="tValor" type="number" step="0.01"></div>
+              <div class="field"><label>Data</label><input id="tData" type="date"></div>
+            </div>
+
+            <div class="field"><label>Descrição</label><input id="tDesc"></div>
+            <button class="main" onclick="criarTransferencia()">Salvar transferência</button>
           </div>
-
-          <div class="row2">
-            <div class="field"><label>Valor</label><input id="tValor" type="number" step="0.01"></div>
-            <div class="field"><label>Data</label><input id="tData" type="date"></div>
-          </div>
-
-          <div class="field"><label>Descrição</label><input id="tDesc"></div>
-          <button class="main" onclick="criarTransferencia()">Salvar transferência</button>
-        </div>
+        </details>
 
         <div class="list" id="listaTransf"></div>
+      </div>
+
+      <!-- CATEGORIAS -->
+      <div id="telaCats" class="hidden">
+        <div class="box">
+          <h2>Categorias</h2>
+          <div class="mini">Você pode renomear ou excluir (só exclui se não estiver sendo usada).</div>
+          <div class="row2">
+            <div class="field">
+              <label>Nova categoria</label>
+              <input id="catNovaNome" placeholder="Ex: Saúde">
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button class="main" onclick="criarCategoria()">Adicionar</button>
+            </div>
+          </div>
+        </div>
+        <div class="list" id="listaCats"></div>
       </div>
 
       <button class="sec" onclick="logout()">Sair</button>
     </div>
   </div>
 
-  <!-- MODAL AÇÕES (COMEÇA FECHADO) -->
+  <!-- MODAL AÇÕES -->
   <div id="actionsBack" class="modalBack hidden" onclick="closeActions(event)">
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modalHeader">
         <div class="modalTitle" id="actionsTitle">Ações</div>
         <button class="modalClose" onclick="closeActions()">X</button>
       </div>
-      <div class="modalBody">
-        <button class="modalBtn edit" onclick="actionsEdit()">✏ Editar</button>
-        <button class="modalBtn del" onclick="actionsDelete()">🗑 Excluir</button>
+      <div class="modalBody" id="actionsBody">
+        <!-- preenchido via JS -->
       </div>
     </div>
   </div>
@@ -508,45 +625,23 @@
     const mesesNomes = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
     let userId = null;
-    let categorias = [];
-    let contas = [];
-    let dados = [];
-    let transferencias = [];
+    let categorias = [];          // [{id, nome}]
+    let contas = [];              // [{id, ...}]
+    let dados = [];               // lancamentos
+    let transferencias = [];      // transf
 
     let grafMes = null;
     let grafAno = null;
 
-    let actionsCtx = { type:null, id:null };
-
     const $ = (id) => document.getElementById(id);
 
-    // Expor funções chamadas no HTML (IMPORTANTE em script type=module)
-    window.openActions = openActions;
-    window.closeActions = closeActions;
-    window.actionsEdit = actionsEdit;
-    window.actionsDelete = actionsDelete;
-
-    window.showCadastro = () => { $("loginScreen").classList.add("hidden"); $("cadastroScreen").classList.remove("hidden"); };
-    window.showLogin = () => { $("cadastroScreen").classList.add("hidden"); $("loginScreen").classList.remove("hidden"); };
-    window.logout = () => signOut(auth);
-
-    // meses
-    mesesNomes.forEach((m,i)=>{
-      const o=document.createElement("option");
-      o.value=String(i); o.text=m;
-      if(i===new Date().getMonth()) o.selected=true;
-      $("mesSelecionado").appendChild(o);
-    });
-    $("data").valueAsDate = new Date();
-    $("tData").valueAsDate = new Date();
-
-    $("repete").onchange = () => $("parcelasBox").classList.toggle("hidden", $("repete").value!=="parcelada");
-
+    // ========= UI: telas =========
     const telas = {
-      mes: { el: () => $("telaMes"), tab: () => $("tabMes") },
       ano: { el: () => $("telaAno"), tab: () => $("tabAno") },
+      mes: { el: () => $("telaMes"), tab: () => $("tabMes") },
       contas: { el: () => $("telaContas"), tab: () => $("tabContas") },
       transf: { el: () => $("telaTransf"), tab: () => $("tabTransf") },
+      cats: { el: () => $("telaCats"), tab: () => $("tabCat") },
     };
 
     window.showTela = (nome) => {
@@ -558,7 +653,13 @@
       if (nome === "ano") renderAno();
       if (nome === "contas") renderContas();
       if (nome === "transf") renderTransferenciasMes();
+      if (nome === "cats") renderCats();
     };
+
+    // ========= Login =========
+    window.showCadastro = () => { $("loginScreen").classList.add("hidden"); $("cadastroScreen").classList.remove("hidden"); };
+    window.showLogin = () => { $("cadastroScreen").classList.add("hidden"); $("loginScreen").classList.remove("hidden"); };
+    window.logout = () => signOut(auth);
 
     $("btnLogin").onclick = () =>
       signInWithEmailAndPassword(auth, $("emailLogin").value, $("senhaLogin").value)
@@ -577,8 +678,66 @@
         .catch(()=>alert("Erro ao enviar email"));
     };
 
-    $("btnGoogle").onclick = () => signInWithPopup(auth, provider).catch(()=>alert("Erro no login com Google"));
+    $("btnGoogle").onclick = () => signInWithPopup(auth, provider).catch(()=>alert("Erro no login Google"));
 
+    // ========= Modal =========
+    window.closeActions = (ev) => {
+      if (ev && ev.target && ev.target.id !== "actionsBack") return;
+      $("actionsBack").classList.add("hidden");
+      $("actionsBody").innerHTML = "";
+    };
+
+    function openActions(title, innerHtml){
+      $("actionsTitle").innerText = title || "Ações";
+      $("actionsBody").innerHTML = innerHtml;
+      $("actionsBack").classList.remove("hidden");
+    }
+    window.openActions = openActions;
+
+    // ========= Ano / Mês =========
+    function anoAtual(){ return new Date().getFullYear(); }
+
+    function preencherSelectAno(){
+      const sel = $("anoSelecionado");
+      const current = String(anoAtual());
+      // lista de anos do current-3 até current+1
+      const anos = [];
+      for (let a=anoAtual()-3; a<=anoAtual()+1; a++) anos.push(String(a));
+      sel.innerHTML = "";
+      anos.forEach(a=>{
+        const o=document.createElement("option");
+        o.value=a; o.text=a;
+        if (a === current) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.onchange = async () => {
+        await carregarLancamentos();
+        await carregarTransferencias();
+        renderAno();
+        renderMes();
+        renderTransferenciasMes();
+        renderContas();
+      };
+    }
+
+    function anoSelecionado(){ return Number($("anoSelecionado").value || anoAtual()); }
+
+    function preencherSelectMes(){
+      $("mesSelecionado").innerHTML = "";
+      mesesNomes.forEach((m,i)=>{
+        const o=document.createElement("option");
+        o.value=String(i); o.text=m;
+        if(i===new Date().getMonth()) o.selected=true;
+        $("mesSelecionado").appendChild(o);
+      });
+      $("mesSelecionado").onchange = () => { renderMes(); renderTransferenciasMes(); };
+    }
+
+    $("data").valueAsDate = new Date();
+    $("tData").valueAsDate = new Date();
+    $("repete").onchange = () => $("parcelasBox").classList.toggle("hidden", $("repete").value!=="parcelada");
+
+    // ========= Carregamento =========
     async function garantirContaPadrao(){
       const snap = await getDocs(collection(db,"users",userId,"contas"));
       if (snap.size === 0) {
@@ -594,6 +753,61 @@
       preencherSelectContas();
       preencherFiltroContas();
     }
+
+    async function carregarCategorias(){
+      categorias=[];
+      const snap=await getDocs(collection(db,"users",userId,"categorias"));
+      snap.forEach(d=>categorias.push({id:d.id, ...d.data()}));
+
+      if (categorias.length===0){
+        for (const c of ["Salário","Alimentação","Aluguel","Transporte","Lazer"]) {
+          await addDoc(collection(db,"users",userId,"categorias"),{nome:c});
+        }
+        return carregarCategorias();
+      }
+      // ordena
+      categorias.sort((a,b)=>(a.nome||"").localeCompare(b.nome||""));
+      preencherSelectCategorias();
+    }
+
+    async function migrarAnoSeNecessario(l){
+      // Se não tiver ano, tenta derivar de data
+      if (l.ano != null) return;
+      const data = l.data || "";
+      let ano = anoAtual();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(data)) ano = Number(data.slice(0,4));
+      await updateDoc(doc(db,"users",userId,"lancamentos",l.id), { ano });
+      l.ano = ano;
+    }
+
+    async function migrarAnoTransfSeNecessario(t){
+      if (t.ano != null) return;
+      const data = t.data || "";
+      let ano = anoAtual();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(data)) ano = Number(data.slice(0,4));
+      await updateDoc(doc(db,"users",userId,"transferencias",t.id), { ano });
+      t.ano = ano;
+    }
+
+    async function carregarLancamentos(){
+      dados=[];
+      const snap=await getDocs(collection(db,"users",userId,"lancamentos"));
+      snap.forEach(d=>dados.push({id:d.id,...d.data()}));
+      // migra "ano" em background (sem travar tudo)
+      for (const l of dados) {
+        if (l.ano == null) await migrarAnoSeNecessario(l);
+      }
+    }
+
+    async function carregarTransferencias(){
+      transferencias=[];
+      const snap=await getDocs(collection(db,"users",userId,"transferencias"));
+      snap.forEach(d=>transferencias.push({id:d.id,...d.data()}));
+      for (const t of transferencias) {
+        if (t.ano == null) await migrarAnoTransfSeNecessario(t);
+      }
+    }
+
     function preencherSelectContas(){
       $("contaLanc").innerHTML="";
       $("tOrigem").innerHTML="";
@@ -602,12 +816,14 @@
         const o=document.createElement("option");
         o.value=c.id; o.text=`${c.nome} (${c.tipo})`;
         $("contaLanc").appendChild(o);
+
         const o1=document.createElement("option");
         o1.value=c.id; o1.text=c.nome;
         $("tOrigem").appendChild(o1);
         $("tDestino").appendChild(o1.cloneNode(true));
       });
     }
+
     function preencherFiltroContas(){
       const sel=$("fConta");
       const atual=sel.value || "todas";
@@ -618,36 +834,18 @@
         sel.appendChild(o);
       });
       sel.value = Array.from(sel.options).some(o=>o.value===atual) ? atual : "todas";
+      $("fStatus").onchange = renderMes;
+      $("fBusca").oninput = renderMes;
+      $("fConta").onchange = renderMes;
     }
 
-    async function carregarCategorias(){
-      categorias=[];
-      const snap=await getDocs(collection(db,"users",userId,"categorias"));
-      snap.forEach(d=>categorias.push(d.data().nome));
-      if (categorias.length===0){
-        for (const c of ["Salário","Alimentação","Aluguel","Transporte","Lazer"]) {
-          await addDoc(collection(db,"users",userId,"categorias"),{nome:c});
-        }
-        return carregarCategorias();
-      }
+    function preencherSelectCategorias(){
       $("categoria").innerHTML='<option value="">Selecione</option>';
       categorias.forEach(c=>{
         const o=document.createElement("option");
-        o.value=c; o.text=c;
+        o.value=c.nome; o.text=c.nome;
         $("categoria").appendChild(o);
       });
-    }
-
-    async function carregarLancamentos(){
-      dados=[];
-      const snap=await getDocs(collection(db,"users",userId,"lancamentos"));
-      snap.forEach(d=>dados.push({id:d.id,...d.data()}));
-    }
-
-    async function carregarTransferencias(){
-      transferencias=[];
-      const snap=await getDocs(collection(db,"users",userId,"transferencias"));
-      snap.forEach(d=>transferencias.push({id:d.id,...d.data()}));
     }
 
     async function carregarTudo(){
@@ -656,133 +854,173 @@
       await carregarCategorias();
       await carregarLancamentos();
       await carregarTransferencias();
-      renderMes(); renderAno(); renderContas(); renderTransferenciasMes();
+      renderAno();
+      renderMes();
+      renderContas();
+      renderTransferenciasMes();
+      renderCats();
     }
 
-    // ===== Modal actions (definidas antes de expor) =====
-    function openActions(type,id,title){
-      actionsCtx={type,id};
-      $("actionsTitle").innerText = title || "Ações";
-      $("actionsBack").classList.remove("hidden");
+    // ========= Helpers =========
+    function nomeConta(id){
+      const c=contas.find(x=>x.id===id);
+      return c ? c.nome : "Conta";
     }
-    function closeActions(ev){
-      if (ev && ev.target && ev.target.id !== "actionsBack") return;
-      $("actionsBack").classList.add("hidden");
-      actionsCtx={type:null,id:null};
+    function saldoConta(contaId){
+      const conta=contas.find(c=>c.id===contaId);
+      let saldo=Number(conta?.saldoInicial||0);
+
+      const ano = anoSelecionado();
+
+      for(const l of dados){
+        if (Number(l.ano ?? ano) !== ano) continue;
+        const lConta=l.contaId||contas[0]?.id;
+        if(l.status!=="pago") continue;
+        if(lConta!==contaId) continue;
+        if(l.tipo==="receita") saldo += Number(l.valor||0);
+        if(l.tipo==="despesa") saldo -= Number(l.valor||0);
+      }
+      for(const t of transferencias){
+        if (Number(t.ano ?? ano) !== ano) continue;
+        if(t.status!=="confirmada") continue;
+        if(t.origemId===contaId) saldo -= Number(t.valor||0);
+        if(t.destinoId===contaId) saldo += Number(t.valor||0);
+      }
+      return saldo;
     }
-    async function actionsEdit(){
-      const {type,id}=actionsCtx;
-      if(!type||!id) return;
-      if(type==="lanc") await editarLanc(id);
-      if(type==="transf") await editarTransf(id);
-      if(type==="conta") await editarConta(id);
-      closeActions();
-    }
-    async function actionsDelete(){
-      const {type,id}=actionsCtx;
-      if(!type||!id) return;
-      if(type==="lanc") await excluirLancComFuturos(id);
-      if(type==="transf") await excluirTransf(id);
-      if(type==="conta") await excluirConta(id);
-      closeActions();
+    function saldoTotalTodasContas(){
+      return contas.reduce((acc,c)=>acc+saldoConta(c.id),0);
     }
 
-    // expõe (IMPORTANTE)
-    window.openActions = openActions;
-    window.closeActions = closeActions;
-    window.actionsEdit = actionsEdit;
-    window.actionsDelete = actionsDelete;
+    // ========= Ações (crud completo) =========
 
-    // ===== Funções do app (restante) =====
-    window.novaCategoria = async () => {
-      const n=prompt("Nova categoria:");
-      if(!n) return;
-      await addDoc(collection(db,"users",userId,"categorias"),{nome:n});
+    // Categorias
+    window.criarCategoria = async () => {
+      const nome = ($("catNovaNome").value || "").trim();
+      if (!nome) return alert("Digite o nome da categoria.");
+      await addDoc(collection(db,"users",userId,"categorias"),{nome});
+      $("catNovaNome").value="";
       await carregarCategorias();
+      renderCats();
     };
 
+    window.renomearCategoria = async (catId) => {
+      const c = categorias.find(x=>x.id===catId);
+      if (!c) return;
+      const novo = prompt("Novo nome da categoria:", c.nome);
+      if (novo === null) return;
+      const nome = novo.trim();
+      if (!nome) return alert("Nome inválido.");
+
+      // atualiza categoria
+      await updateDoc(doc(db,"users",userId,"categorias",catId), { nome });
+
+      // opcional: migrar lançamentos que usavam o nome antigo
+      if (confirm("Deseja atualizar os lançamentos que usam esta categoria?")) {
+        const antigos = dados.filter(l => l.cat === c.nome);
+        for (const l of antigos) {
+          await updateDoc(doc(db,"users",userId,"lancamentos",l.id), { cat: nome });
+        }
+      }
+
+      await carregarCategorias();
+      await carregarLancamentos();
+      renderCats();
+      renderMes();
+      renderAno();
+    };
+
+    window.excluirCategoria = async (catId) => {
+      const c = categorias.find(x=>x.id===catId);
+      if (!c) return;
+      const emUso = dados.some(l => l.cat === c.nome);
+      if (emUso) return alert("Não posso excluir: essa categoria está sendo usada em lançamentos. Renomeie ou altere os lançamentos primeiro.");
+      if (!confirm(`Excluir a categoria "${c.nome}"?`)) return;
+      await deleteDoc(doc(db,"users",userId,"categorias",catId));
+      await carregarCategorias();
+      renderCats();
+      renderMes();
+    };
+
+    // Contas
     window.criarConta = async () => {
       const nome=($("contaNome").value||"").trim();
       if(!nome) return alert("Digite o nome.");
       const tipo=$("contaTipo").value;
       const saldoInicial=Number($("contaSaldoInicial").value||0);
+      if(!Number.isFinite(saldoInicial)) return alert("Saldo inválido.");
       await addDoc(collection(db,"users",userId,"contas"),{nome,tipo,saldoInicial,criadoEm:new Date()});
       $("contaNome").value=""; $("contaSaldoInicial").value="0";
-      await carregarContas(); renderContas(); renderAno(); renderMes();
+      await carregarContas();
+      renderContas();
+      renderAno();
+      renderMes();
     };
 
-    async function editarConta(contaId){
-      const c=contas.find(x=>x.id===contaId);
+    function abrirEditarConta(contaId){
+      const c = contas.find(x=>x.id===contaId);
       if(!c) return;
-      const novoNome=prompt("Novo nome:", c.nome||"");
-      if(novoNome===null) return;
-      const nome=novoNome.trim(); if(!nome) return alert("Nome inválido.");
-      const novoSaldo=prompt("Saldo inicial:", String(c.saldoInicial||0));
-      if(novoSaldo===null) return;
-      const saldoInicial=Number(novoSaldo); if(!Number.isFinite(saldoInicial)) return alert("Saldo inválido.");
-      await updateDoc(doc(db,"users",userId,"contas",contaId),{nome,saldoInicial});
-      await carregarContas(); renderContas(); renderAno(); renderMes();
+      openActions("Editar conta", `
+        <div class="field"><label>Nome</label><input id="edContaNome" value="${escapeHtml(c.nome||"")}"></div>
+        <div class="field">
+          <label>Tipo</label>
+          <select id="edContaTipo">
+            <option ${c.tipo==="corrente"?"selected":""} value="corrente">Corrente</option>
+            <option ${c.tipo==="poupanca"?"selected":""} value="poupanca">Poupança</option>
+            <option ${c.tipo==="cofrinho"?"selected":""} value="cofrinho">Cofrinho</option>
+            <option ${c.tipo==="cartao"?"selected":""} value="cartao">Cartão</option>
+          </select>
+        </div>
+        <div class="field"><label>Saldo inicial</label><input id="edContaSaldo" type="number" step="0.01" value="${Number(c.saldoInicial||0)}"></div>
+
+        <button class="modalBtn ok" onclick="salvarEdConta('${c.id}')">💾 Salvar</button>
+        <button class="modalBtn del" onclick="excluirConta('${c.id}')">🗑 Excluir conta</button>
+      `);
     }
 
-    async function excluirConta(contaId){
+    window.salvarEdConta = async (contaId) => {
+      const nome = ($("edContaNome").value||"").trim();
+      const tipo = $("edContaTipo").value;
+      const saldoInicial = Number($("edContaSaldo").value||0);
+      if(!nome) return alert("Nome inválido.");
+      if(!Number.isFinite(saldoInicial)) return alert("Saldo inválido.");
+      await updateDoc(doc(db,"users",userId,"contas",contaId), { nome, tipo, saldoInicial });
+      closeActions();
+      await carregarContas();
+      renderContas();
+      renderAno();
+      renderMes();
+    };
+
+    window.excluirConta = async (contaId) => {
       const c=contas.find(x=>x.id===contaId);
       if(!c) return;
-      if((c.nome||"").toLowerCase().includes("padrão")) return alert("Conta Padrão não pode.");
+      if((c.nome||"").toLowerCase().includes("padrão")) return alert("Conta Padrão não pode ser excluída.");
+
       const temLanc=dados.some(l=>(l.contaId||contas[0]?.id)===contaId);
       const temTransf=transferencias.some(t=>t.origemId===contaId||t.destinoId===contaId);
-      if(temLanc||temTransf) return alert("Conta em uso. Apague/edite lançamentos e transferências antes.");
+      if(temLanc||temTransf) return alert("Conta em uso. Remova/edite lançamentos e transferências antes.");
       if(!confirm(`Excluir a conta "${c.nome}"?`)) return;
       await deleteDoc(doc(db,"users",userId,"contas",contaId));
-      await carregarContas(); renderContas(); renderAno(); renderMes();
-    }
-
-    window.criarTransferencia = async () => {
-      const origemId=$("tOrigem").value;
-      const destinoId=$("tDestino").value;
-      const valor=Number($("tValor").value||0);
-      const dataStr=$("tData").value;
-      const desc=($("tDesc").value||"").trim();
-      if(!origemId||!destinoId) return alert("Selecione origem e destino.");
-      if(origemId===destinoId) return alert("Origem e destino devem ser diferentes.");
-      if(!valor||valor<=0) return alert("Valor inválido.");
-      if(!dataStr) return alert("Informe a data.");
-      const mes=new Date(dataStr).getMonth();
-      await addDoc(collection(db,"users",userId,"transferencias"),{origemId,destinoId,valor,data:dataStr,mes,desc,status:"confirmada",criadoEm:new Date()});
-      $("tValor").value=""; $("tDesc").value="";
-      await carregarTransferencias(); renderTransferenciasMes(); renderAno(); renderMes(); renderContas();
+      closeActions();
+      await carregarContas();
+      renderContas();
+      renderAno();
+      renderMes();
     };
 
-    async function editarTransf(id){
-      const t=transferencias.find(x=>x.id===id);
-      if(!t) return;
-      const nv=prompt("Novo valor:", String(t.valor||0));
-      if(nv===null) return;
-      const valor=Number(nv); if(!Number.isFinite(valor)||valor<=0) return alert("Valor inválido.");
-      const nd=prompt("Nova descrição:", String(t.desc||""));
-      if(nd===null) return;
-      const newData=prompt("Nova data (AAAA-MM-DD):", String(t.data||""));
-      if(newData===null) return;
-      if(!/^\d{4}-\d{2}-\d{2}$/.test(newData)) return alert("Data inválida.");
-      const mes=new Date(newData).getMonth();
-      await updateDoc(doc(db,"users",userId,"transferencias",id),{valor,desc:nd,data:newData,mes});
-      await carregarTransferencias(); renderTransferenciasMes(); renderAno(); renderMes(); renderContas();
-    }
-
-    async function excluirTransf(id){
-      if(!confirm("Excluir esta transferência?")) return;
-      await deleteDoc(doc(db,"users",userId,"transferencias",id));
-      await carregarTransferencias(); renderTransferenciasMes(); renderAno(); renderMes(); renderContas();
-    }
-
+    // Lançamentos (edição completa)
     window.adicionarLancamento = async () => {
       if(!$("tipo").value||!$("categoria").value||!$("valor").value||!$("data").value||!$("repete").value) return alert("Preencha tudo.");
       const contaId=$("contaLanc").value || (contas[0]?.id ?? null);
       const valorTotal=Number($("valor").value);
+      if(!Number.isFinite(valorTotal) || valorTotal<=0) return alert("Valor inválido.");
       const dataStr=$("data").value;
       const mesBase=new Date(dataStr).getMonth();
+      const ano = Number(dataStr.slice(0,4)) || anoSelecionado();
       const grupo=String(Date.now())+"_"+Math.floor(Math.random()*1e6);
 
-      const base={tipo:$("tipo").value,cat:$("categoria").value,desc:$("desc").value||"",mes:mesBase,data:dataStr,grupo,status:"pendente",contaId};
+      const base={tipo:$("tipo").value,cat:$("categoria").value,desc:$("desc").value||"",mes:mesBase,data:dataStr,ano,grupo,status:"pendente",contaId};
 
       const salvar = (o)=>addDoc(collection(db,"users",userId,"lancamentos"),o);
 
@@ -799,7 +1037,13 @@
       $("desc").value=""; $("valor").value=""; $("repete").value=""; $("parcelas").value=2;
       $("parcelasBox").classList.add("hidden");
 
-      await carregarLancamentos(); renderMes(); renderAno(); renderContas();
+      // fecha accordion (deixa a tela mais limpa)
+      $("accNovoLanc").open = false;
+
+      await carregarLancamentos();
+      renderMes();
+      renderAno();
+      renderContas();
     };
 
     window.pagar = async (id)=>{
@@ -811,23 +1055,89 @@
       await carregarLancamentos(); renderMes(); renderAno(); renderContas();
     };
 
-    async function editarLanc(id){
-      const l=dados.find(x=>x.id===id);
+    function abrirEditarLanc(lancId){
+      const l = dados.find(x=>x.id===lancId);
       if(!l) return;
-      const nv=prompt("Novo valor:", String(l.valor||0));
-      if(nv===null) return;
-      const valor=Number(nv); if(!Number.isFinite(valor)||valor<0) return alert("Valor inválido.");
-      await updateDoc(doc(db,"users",userId,"lancamentos",id),{valor});
-      await carregarLancamentos(); renderMes(); renderAno(); renderContas();
+
+      const ano = Number(l.ano ?? anoSelecionado());
+      const mes = Number(l.mes ?? 0);
+
+      const contasOpt = contas.map(c=>`<option value="${c.id}" ${((l.contaId||contas[0]?.id)===c.id)?"selected":""}>${escapeHtml(c.nome)} (${escapeHtml(c.tipo)})</option>`).join("");
+      const catsOpt = categorias.map(c=>`<option value="${escapeHtml(c.nome)}" ${(l.cat===c.nome)?"selected":""}>${escapeHtml(c.nome)}</option>`).join("");
+
+      openActions("Editar lançamento", `
+        <div class="row2">
+          <div class="field">
+            <label>Tipo</label>
+            <select id="edLTp">
+              <option value="receita" ${l.tipo==="receita"?"selected":""}>Receita</option>
+              <option value="despesa" ${l.tipo==="despesa"?"selected":""}>Despesa</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <select id="edLSt">
+              <option value="pendente" ${l.status==="pendente"?"selected":""}>Pendente</option>
+              <option value="pago" ${l.status==="pago"?"selected":""}>Pago</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Conta</label>
+          <select id="edLCt">${contasOpt}</select>
+        </div>
+
+        <div class="field">
+          <label>Categoria</label>
+          <select id="edLCat">${catsOpt}</select>
+        </div>
+
+        <div class="field"><label>Descrição</label><input id="edLDesc" value="${escapeHtml(l.desc||"")}"></div>
+
+        <div class="row2">
+          <div class="field"><label>Valor</label><input id="edLV" type="number" step="0.01" value="${Number(l.valor||0)}"></div>
+          <div class="field"><label>Data</label><input id="edLData" type="date" value="${escapeHtml(l.data||"")}"></div>
+        </div>
+
+        <div class="mini">Obs: editar data muda mês/ano automaticamente.</div>
+
+        <button class="modalBtn ok" onclick="salvarEdLanc('${l.id}')">💾 Salvar</button>
+        <button class="modalBtn del" onclick="excluirLancComFuturos('${l.id}')">🗑 Excluir (este e futuros pendentes)</button>
+      `);
     }
 
-    async function excluirLancComFuturos(id){
+    window.salvarEdLanc = async (lancId) => {
+      const tipo = $("edLTp").value;
+      const status = $("edLSt").value;
+      const contaId = $("edLCt").value;
+      const cat = $("edLCat").value;
+      const desc = $("edLDesc").value || "";
+      const valor = Number($("edLV").value||0);
+      const data = $("edLData").value;
+
+      if(!cat) return alert("Categoria inválida.");
+      if(!data) return alert("Data inválida.");
+      if(!Number.isFinite(valor) || valor<=0) return alert("Valor inválido.");
+
+      const mes = new Date(data).getMonth();
+      const ano = Number(data.slice(0,4)) || anoSelecionado();
+
+      await updateDoc(doc(db,"users",userId,"lancamentos",lancId), { tipo, status, contaId, cat, desc, valor, data, mes, ano });
+
+      closeActions();
+      await carregarLancamentos();
+      renderMes(); renderAno(); renderContas();
+    };
+
+    window.excluirLancComFuturos = async (id) => {
       const item=dados.find(x=>x.id===id);
       if(!item) return;
       if(!confirm("Excluir este lançamento e todos os futuros pendentes do mesmo grupo?")) return;
 
       const grupo=item.grupo;
       const mesAtual=Number(item.mes);
+      const ano = Number(item.ano ?? anoSelecionado());
 
       const q=query(collection(db,"users",userId,"lancamentos"), where("grupo","==",grupo));
       const snap=await getDocs(q);
@@ -835,48 +1145,143 @@
       for(const d of snap.docs){
         const v=d.data();
         const docId=d.id;
+
+        const vAno = Number(v.ano ?? ano);
+        const vMes = Number(v.mes ?? 0);
+
         const isThis=(docId===id);
-        const isFuturePending=(v.status==="pendente" && Number(v.mes)>=mesAtual);
+        const isFuturePending=(v.status==="pendente" && vAno===ano && vMes>=mesAtual);
         if(isThis || isFuturePending) await deleteDoc(d.ref);
       }
 
-      await carregarLancamentos(); renderMes(); renderAno(); renderContas();
+      closeActions();
+      await carregarLancamentos();
+      renderMes(); renderAno(); renderContas();
+    };
+
+    // Transferências (edição completa)
+    window.criarTransferencia = async () => {
+      const origemId=$("tOrigem").value;
+      const destinoId=$("tDestino").value;
+      const valor=Number($("tValor").value||0);
+      const dataStr=$("tData").value;
+      const desc=($("tDesc").value||"").trim();
+      if(!origemId||!destinoId) return alert("Selecione origem e destino.");
+      if(origemId===destinoId) return alert("Origem e destino devem ser diferentes.");
+      if(!Number.isFinite(valor)||valor<=0) return alert("Valor inválido.");
+      if(!dataStr) return alert("Informe a data.");
+
+      const mes=new Date(dataStr).getMonth();
+      const ano = Number(dataStr.slice(0,4)) || anoSelecionado();
+
+      await addDoc(collection(db,"users",userId,"transferencias"),{origemId,destinoId,valor,data:dataStr,mes,ano,desc,status:"confirmada",criadoEm:new Date()});
+      $("tValor").value=""; $("tDesc").value="";
+      $("accNovaTransf").open = false;
+
+      await carregarTransferencias();
+      renderTransferenciasMes(); renderAno(); renderMes(); renderContas();
+    };
+
+    function abrirEditarTransf(id){
+      const t=transferencias.find(x=>x.id===id);
+      if(!t) return;
+
+      const contasOptO = contas.map(c=>`<option value="${c.id}" ${t.origemId===c.id?"selected":""}>${escapeHtml(c.nome)}</option>`).join("");
+      const contasOptD = contas.map(c=>`<option value="${c.id}" ${t.destinoId===c.id?"selected":""}>${escapeHtml(c.nome)}</option>`).join("");
+
+      openActions("Editar transferência", `
+        <div class="row2">
+          <div class="field"><label>Origem</label><select id="edTO">${contasOptO}</select></div>
+          <div class="field"><label>Destino</label><select id="edTD">${contasOptD}</select></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Valor</label><input id="edTV" type="number" step="0.01" value="${Number(t.valor||0)}"></div>
+          <div class="field"><label>Data</label><input id="edTData" type="date" value="${escapeHtml(t.data||"")}"></div>
+        </div>
+        <div class="field"><label>Descrição</label><input id="edTDesc" value="${escapeHtml(t.desc||"")}"></div>
+        <button class="modalBtn ok" onclick="salvarEdTransf('${t.id}')">💾 Salvar</button>
+        <button class="modalBtn del" onclick="excluirTransf('${t.id}')">🗑 Excluir</button>
+      `);
     }
 
-    function nomeConta(id){
-      const c=contas.find(x=>x.id===id);
-      return c?c.nome:"Conta";
-    }
+    window.salvarEdTransf = async (id) => {
+      const origemId = $("edTO").value;
+      const destinoId = $("edTD").value;
+      const valor = Number($("edTV").value||0);
+      const data = $("edTData").value;
+      const desc = $("edTDesc").value||"";
 
-    function saldoConta(contaId){
-      const conta=contas.find(c=>c.id===contaId);
-      let saldo=Number(conta?.saldoInicial||0);
+      if(origemId===destinoId) return alert("Origem e destino precisam ser diferentes.");
+      if(!Number.isFinite(valor) || valor<=0) return alert("Valor inválido.");
+      if(!data) return alert("Data inválida.");
 
-      for(const l of dados){
-        const lConta=l.contaId||contas[0]?.id;
-        if(l.status!=="pago") continue;
-        if(lConta!==contaId) continue;
-        if(l.tipo==="receita") saldo += Number(l.valor||0);
-        if(l.tipo==="despesa") saldo -= Number(l.valor||0);
+      const mes = new Date(data).getMonth();
+      const ano = Number(data.slice(0,4)) || anoSelecionado();
+
+      await updateDoc(doc(db,"users",userId,"transferencias",id), { origemId, destinoId, valor, data, mes, ano, desc });
+
+      closeActions();
+      await carregarTransferencias();
+      renderTransferenciasMes(); renderAno(); renderMes(); renderContas();
+    };
+
+    window.excluirTransf = async (id) => {
+      if(!confirm("Excluir esta transferência?")) return;
+      await deleteDoc(doc(db,"users",userId,"transferencias",id));
+      closeActions();
+      await carregarTransferencias();
+      renderTransferenciasMes(); renderAno(); renderMes(); renderContas();
+    };
+
+    // ========= Filtros =========
+    window.limparFiltros = () => {
+      $("fConta").value = "todas";
+      $("fStatus").value = "todos";
+      $("fBusca").value = "";
+      $("accFiltros").open = false;
+      renderMes();
+    };
+
+    window.abrirGerenciarCategorias = () => showTela("cats");
+
+    // ========= Renders =========
+    window.renderAno = () => {
+      const ano = anoSelecionado();
+      let rM=Array(12).fill(0), dM=Array(12).fill(0), r=0, d=0;
+
+      for(const i of dados){
+        if (Number(i.ano ?? ano) !== ano) continue;
+        if(i.status!=="pago") continue;
+        const m=Number(i.mes ?? 0);
+        if(i.tipo==="receita"){ r+=Number(i.valor||0); rM[m]+=Number(i.valor||0); }
+        else { d+=Number(i.valor||0); dM[m]+=Number(i.valor||0); }
       }
-      for(const t of transferencias){
-        if(t.status!=="confirmada") continue;
-        if(t.origemId===contaId) saldo -= Number(t.valor||0);
-        if(t.destinoId===contaId) saldo += Number(t.valor||0);
+
+      $("rAno").innerText=`R$ ${r.toFixed(2)}`;
+      $("dAno").innerText=`R$ ${d.toFixed(2)}`;
+      $("sAno").innerText=`R$ ${(r-d).toFixed(2)}`;
+      $("saldoTotal").innerText=`R$ ${saldoTotalTodasContas().toFixed(2)}`;
+
+      if(!grafAno){
+        grafAno=new Chart($("graficoAno"),{type:"bar",data:{labels:mesesNomes,datasets:[
+          {label:"Receitas",data:[],backgroundColor:"#22c55e"},
+          {label:"Despesas",data:[],backgroundColor:"#ef4444"}
+        ]}});
       }
-      return saldo;
-    }
+      grafAno.data.datasets[0].data=rM;
+      grafAno.data.datasets[1].data=dM;
+      grafAno.update();
+    };
 
-    function saldoTotalTodasContas(){
-      return contas.reduce((acc,c)=>acc+saldoConta(c.id),0);
-    }
+    window.renderMes = () => {
+      const ano = anoSelecionado();
+      const mes = Number($("mesSelecionado").value);
 
-    window.renderMes = ()=>{
-      const mes=Number($("mesSelecionado").value);
-
+      // totais do mês (pagos)
       let r=0,d=0;
       const cat={};
-      const itensMes=dados.filter(i=>Number(i.mes)===mes);
+
+      const itensMes = dados.filter(i => Number(i.ano ?? ano) === ano && Number(i.mes) === mes);
 
       for(const i of itensMes){
         if(i.status==="pago"){
@@ -890,17 +1295,21 @@
       $("dMes").innerText=`R$ ${d.toFixed(2)}`;
       $("sMes").innerText=`R$ ${(r-d).toFixed(2)}`;
 
+      // aplica filtros na lista
       const fConta=$("fConta").value;
       const fStatus=$("fStatus").value;
       const fBusca=($("fBusca").value||"").trim().toLowerCase();
 
-      let lista=itensMes.slice();
+      let lista = itensMes.slice();
+
       if(fConta!=="todas") lista = lista.filter(i=>(i.contaId||contas[0]?.id)===fConta);
       if(fStatus!=="todos") lista = lista.filter(i=>i.status===fStatus);
       if(fBusca) lista = lista.filter(i=>String(i.cat||"").toLowerCase().includes(fBusca)||String(i.desc||"").toLowerCase().includes(fBusca));
+
       lista.sort((a,b)=>String(a.data||"").localeCompare(String(b.data||"")));
 
       $("listaMes").innerHTML="<h2>Lançamentos</h2>";
+
       for(const i of lista){
         const statusTxt=(i.status==="pago")?"Pago":"Pendente";
         const contaNome=nomeConta(i.contaId||contas[0]?.id);
@@ -912,8 +1321,8 @@
         div.className="tx";
         div.innerHTML=`
           <div>
-            <div class="title">${i.cat}</div>
-            <div class="meta">${info} • ${contaNome} • ${statusTxt}</div>
+            <div class="title">${escapeHtml(i.cat||"")}</div>
+            <div class="meta">${escapeHtml(info)} • ${escapeHtml(contaNome)} • ${statusTxt}</div>
           </div>
           <div class="right">
             <div class="amount ${i.tipo==='receita'?'rec':'desp'}">R$ ${Number(i.valor||0).toFixed(2)}</div>
@@ -922,7 +1331,7 @@
                 ? `<button class="iconBtn ok" onclick="pagar('${i.id}')" title="Confirmar">✔</button>`
                 : `<button class="iconBtn undo" onclick="voltar('${i.id}')" title="Voltar">↩</button>`
             }
-            <button class="iconBtn" onclick="openActions('lanc','${i.id}','Ações do lançamento')" title="Mais">⋯</button>
+            <button class="iconBtn" onclick="abrirEditarLanc('${i.id}')" title="Editar">✏</button>
           </div>
         `;
         $("listaMes").appendChild(div);
@@ -938,56 +1347,44 @@
       renderTransferenciasMes();
     };
 
-    window.renderAno = ()=>{
-      let rM=Array(12).fill(0), dM=Array(12).fill(0), r=0, d=0;
-      for(const i of dados){
-        if(i.status!=="pago") continue;
-        const m=Number(i.mes);
-        if(i.tipo==="receita"){ r+=Number(i.valor||0); rM[m]+=Number(i.valor||0); }
-        else { d+=Number(i.valor||0); dM[m]+=Number(i.valor||0); }
-      }
-      $("rAno").innerText=`R$ ${r.toFixed(2)}`;
-      $("dAno").innerText=`R$ ${d.toFixed(2)}`;
-      $("sAno").innerText=`R$ ${(r-d).toFixed(2)}`;
-      $("saldoTotal").innerText=`R$ ${saldoTotalTodasContas().toFixed(2)}`;
-
-      if(!grafAno){
-        grafAno=new Chart($("graficoAno"),{type:"bar",data:{labels:mesesNomes,datasets:[{label:"Receitas",data:[],backgroundColor:"#22c55e"},{label:"Despesas",data:[],backgroundColor:"#ef4444"}]}});
-      }
-      grafAno.data.datasets[0].data=rM;
-      grafAno.data.datasets[1].data=dM;
-      grafAno.update();
-    };
-
-    window.renderContas = ()=>{
-      $("listaContas").innerHTML=`<h2>Saldos por conta</h2><div class="accountsGrid" id="accGrid"></div>`;
-      const grid=$("accGrid");
-      grid.innerHTML="";
+    window.renderContas = () => {
+      $("listaContas").innerHTML = `
+        <h2>Contas</h2>
+        <div class="mini">Saldos calculados no ano selecionado: <b>${anoSelecionado()}</b></div>
+        <div class="accountsGrid" id="accGrid"></div>
+      `;
+      const grid = $("accGrid");
+      grid.innerHTML = "";
 
       contas.forEach(c=>{
-        const saldo=saldoConta(c.id);
-        const posNeg=saldo>=0?"pos":"neg";
+        const saldo = saldoConta(c.id);
+        const posNeg = saldo>=0 ? "pos" : "neg";
         const div=document.createElement("div");
         div.className="acc";
         div.innerHTML=`
           <div>
-            <div class="name">${c.nome}</div>
-            <div class="type">${c.tipo} • saldo inicial: R$ ${Number(c.saldoInicial||0).toFixed(2)}</div>
+            <div class="name">${escapeHtml(c.nome||"")}</div>
+            <div class="type">${escapeHtml(c.tipo||"")} • saldo inicial: R$ ${Number(c.saldoInicial||0).toFixed(2)}</div>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start;">
             <div class="bal ${posNeg}">R$ ${saldo.toFixed(2)}</div>
-            <button class="iconBtn" onclick="openActions('conta','${c.id}','Ações da conta')">⋯</button>
+            <button class="iconBtn" onclick="abrirEditarConta('${c.id}')" title="Editar conta">✏</button>
           </div>
         `;
         grid.appendChild(div);
       });
     };
 
-    window.renderTransferenciasMes = ()=>{
+    window.renderTransferenciasMes = () => {
+      const ano = anoSelecionado();
       const mes=Number($("mesSelecionado").value);
+
       $("listaTransf").innerHTML="<h2>Transferências do mês</h2>";
 
-      const itens=transferencias.filter(t=>Number(t.mes)===mes).sort((a,b)=>String(a.data||"").localeCompare(String(b.data||"")));
+      const itens=transferencias
+        .filter(t => Number(t.ano ?? ano) === ano && Number(t.mes)===mes)
+        .sort((a,b)=>String(a.data||"").localeCompare(String(b.data||"")));
+
       if(itens.length===0){
         $("listaTransf").innerHTML += `<div class="mini">Nenhuma transferência neste mês.</div>`;
         return;
@@ -998,20 +1395,49 @@
         div.className="tr";
         div.innerHTML=`
           <div>
-            <div class="title">${nomeConta(t.origemId)} → ${nomeConta(t.destinoId)}</div>
-            <div class="meta">${t.desc||""} • ${t.data||""}</div>
+            <div class="title">${escapeHtml(nomeConta(t.origemId))} → ${escapeHtml(nomeConta(t.destinoId))}</div>
+            <div class="meta">${escapeHtml(t.desc||"")} • ${escapeHtml(t.data||"")}</div>
           </div>
           <div style="display:flex;gap:10px;align-items:center;">
             <div class="val">R$ ${Number(t.valor||0).toFixed(2)}</div>
-            <button class="iconBtn" onclick="openActions('transf','${t.id}','Ações da transferência')">⋯</button>
+            <button class="iconBtn" onclick="abrirEditarTransf('${t.id}')" title="Editar transferência">✏</button>
           </div>
         `;
         $("listaTransf").appendChild(div);
       });
     };
 
+    window.renderCats = () => {
+      $("listaCats").innerHTML = "<h2>Lista de categorias</h2>";
+      categorias.forEach(c=>{
+        const div=document.createElement("div");
+        div.className="tx";
+        div.innerHTML=`
+          <div>
+            <div class="title">${escapeHtml(c.nome||"")}</div>
+            <div class="meta">Gerenciar categoria</div>
+          </div>
+          <div class="right">
+            <button class="iconBtn" onclick="renomearCategoria('${c.id}')" title="Renomear">✏</button>
+            <button class="iconBtn" onclick="excluirCategoria('${c.id}')" title="Excluir">🗑</button>
+          </div>
+        `;
+        $("listaCats").appendChild(div);
+      });
+    };
+
+    // ========= Escape helper =========
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // ========= Auth =========
     onAuthStateChanged(auth, async (u)=>{
-      // garante que modal fique fechado ao carregar
       $("actionsBack").classList.add("hidden");
 
       if(u){
@@ -1019,12 +1445,24 @@
         $("loginScreen").classList.add("hidden");
         $("cadastroScreen").classList.add("hidden");
         $("appScreen").classList.remove("hidden");
+
+        preencherSelectAno();
+        preencherSelectMes();
+
         await carregarTudo();
+
+        // abre tela inicial mais limpa
+        showTela("ano");
       }else{
         $("appScreen").classList.add("hidden");
         showLogin();
       }
     });
+
+    // Expor funções usadas no HTML
+    window.abrirEditarConta = abrirEditarConta;
+    window.abrirEditarLanc = abrirEditarLanc;
+    window.abrirEditarTransf = abrirEditarTransf;
   </script>
 </body>
 </html>
