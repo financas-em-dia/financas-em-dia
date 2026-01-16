@@ -67,6 +67,7 @@
     input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.85;}
 
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
     .mes-box{margin-bottom:10px;}
 
     .top-tabs{
@@ -174,17 +175,18 @@
     }
     .menuBtn:hover{background: rgba(255,255,255,0.07);}
 
-    .menuWrap{position:relative;}
+    .menuWrap{position:relative; z-index:9999;}
     .menu{
       position:absolute;
-      right:0; top:46px;
+      right:0;
+      top:46px;
       width:195px;
       border-radius:14px;
       border:1px solid var(--border);
       background: rgba(2,6,23,0.92);
       box-shadow: var(--shadow);
       overflow:hidden;
-      z-index:30;
+      z-index:99999;
     }
     .menu button{
       width:100%;
@@ -233,6 +235,9 @@
     .tr .title{font-weight:900;font-size:.92rem}
     .tr .meta{font-size:.78rem;color:var(--muted);margin-top:2px}
     .tr .val{font-weight:950;min-width:115px;text-align:right;font-variant-numeric: tabular-nums;}
+
+    /* garantir que menus fiquem acima do canvas */
+    .chart-box{ position:relative; z-index:1; overflow:visible; }
   </style>
 </head>
 
@@ -244,7 +249,7 @@
       <h1>🔐 Finanças em Dia</h1>
       <div class="box">
         <div class="field"><label>Email</label><input id="emailLogin" type="email" autocomplete="email"></div>
-        <div class="field passbox">
+        <div class="field">
           <label>Senha</label>
           <input id="senhaLogin" type="password" autocomplete="current-password">
         </div>
@@ -285,6 +290,30 @@
           <div class="field">
             <label>Mês</label>
             <select id="mesSelecionado" onchange="renderMes()"></select>
+          </div>
+
+          <div class="row3">
+            <div class="field">
+              <label>Filtrar por conta</label>
+              <select id="fConta" onchange="renderMes()"></select>
+            </div>
+            <div class="field">
+              <label>Status</label>
+              <select id="fStatus" onchange="renderMes()">
+                <option value="todos">Todos</option>
+                <option value="pendente">Pendente</option>
+                <option value="pago">Pago</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Buscar</label>
+              <input id="fBusca" placeholder="categoria ou descrição" oninput="renderMes()">
+            </div>
+          </div>
+
+          <div class="mini">
+            <span class="pill">Dica</span>
+            Filtros só afetam a lista. Os totais do mês continuam considerando <b>pagos</b>.
           </div>
         </div>
 
@@ -345,11 +374,6 @@
             </div>
           </div>
 
-          <div class="mini">
-            <span class="pill">Dica</span>
-            Transferências entre contas ficam na aba <b>Transferências</b> e não entram em receitas/despesas.
-          </div>
-
           <button class="main" onclick="adicionarLancamento()" style="margin-top:10px;">Adicionar</button>
         </div>
 
@@ -364,6 +388,16 @@
           <div class="card"><h3>Despesas Ano</h3><div class="value" id="dAno">R$0</div></div>
           <div class="card saldo"><h3>Saldo Ano</h3><div class="value" id="sAno">R$0</div><div class="sub">Somente lançamentos pagos</div></div>
         </div>
+
+        <div class="box">
+          <h2>Saldo Total (todas as contas)</h2>
+          <div class="mini">Soma dos saldos atuais de todas as contas.</div>
+          <div class="card" style="margin-top:10px;">
+            <h3>Saldo Total</h3>
+            <div class="value" id="saldoTotal">R$0</div>
+          </div>
+        </div>
+
         <div class="chart-box"><canvas id="graficoAno"></canvas></div>
       </div>
 
@@ -387,10 +421,6 @@
 
           <div class="field"><label>Saldo inicial</label><input id="contaSaldoInicial" type="number" step="0.01" value="0"></div>
           <button class="main" onclick="criarConta()">Criar conta</button>
-
-          <div class="mini" style="margin-top:10px">
-            Lançamentos antigos (sem conta) caem automaticamente na <b>Conta Padrão</b>.
-          </div>
         </div>
 
         <div class="list" id="listaContas"></div>
@@ -556,6 +586,7 @@
         return (a.nome||"").localeCompare(b.nome||"");
       });
       preencherSelectContas();
+      preencherFiltroContas();
     }
 
     function preencherSelectContas(){
@@ -575,6 +606,20 @@
         $("tOrigem").appendChild(o1);
         $("tDestino").appendChild(o2);
       });
+    }
+
+    function preencherFiltroContas(){
+      const sel = $("fConta");
+      const atual = sel.value || "todas";
+      sel.innerHTML = `<option value="todas">Todas as contas</option>`;
+      contas.forEach(c=>{
+        const o = document.createElement("option");
+        o.value = c.id;
+        o.text = c.nome;
+        sel.appendChild(o);
+      });
+      // mantém seleção se possível
+      sel.value = Array.from(sel.options).some(o=>o.value===atual) ? atual : "todas";
     }
 
     async function carregarCategorias(){
@@ -643,10 +688,65 @@
 
         await carregarContas();
         renderContas();
+        renderAno(); // atualiza saldo total
         alert("Conta criada!");
       }catch(e){
         console.error(e);
         alert("Erro ao criar conta. Veja o console (F12).");
+      }
+    };
+
+    window.editarConta = async (contaId) => {
+      const c = contas.find(x=>x.id===contaId);
+      if (!c) return;
+
+      const novoNome = prompt("Novo nome da conta:", c.nome ?? "");
+      if (novoNome === null) return;
+      const nome = novoNome.trim();
+      if (!nome) return alert("Nome inválido.");
+
+      const novoSaldo = prompt("Saldo inicial (altere apenas se necessário):", String(c.saldoInicial ?? 0));
+      if (novoSaldo === null) return;
+      const saldoInicial = Number(novoSaldo);
+      if (!Number.isFinite(saldoInicial)) return alert("Saldo inválido.");
+
+      try{
+        await updateDoc(doc(db,"users",userId,"contas",contaId),{nome, saldoInicial});
+        await carregarContas();
+        renderContas();
+        renderAno();
+      }catch(e){
+        console.error(e);
+        alert("Erro ao editar conta.");
+      }
+    };
+
+    window.excluirConta = async (contaId) => {
+      const c = contas.find(x=>x.id===contaId);
+      if (!c) return;
+
+      if ((c.nome||"").toLowerCase().includes("padrão")) {
+        return alert("A Conta Padrão não pode ser excluída.");
+      }
+
+      // Verifica se a conta está em uso
+      const temLanc = dados.some(l => (l.contaId || contas[0]?.id) === contaId);
+      const temTransf = transferencias.some(t => t.origemId === contaId || t.destinoId === contaId);
+
+      if (temLanc || temTransf) {
+        return alert("Essa conta está em uso em lançamentos/transferências. Edite os itens primeiro antes de excluir.");
+      }
+
+      if (!confirm(`Excluir a conta "${c.nome}"?`)) return;
+
+      try{
+        await deleteDoc(doc(db,"users",userId,"contas",contaId));
+        await carregarContas();
+        renderContas();
+        renderAno();
+      }catch(e){
+        console.error(e);
+        alert("Erro ao excluir conta.");
       }
     };
 
@@ -676,6 +776,7 @@
         await carregarTransferencias();
         renderTransferenciasMes();
         renderContas();
+        renderAno();
         alert("Transferência salva!");
       }catch(e){
         console.error(e);
@@ -765,16 +866,46 @@
 
     // ===== menus ⋯ =====
     window.toggleMenu = (id) => {
+      // fecha outros menus e reseta posição
       document.querySelectorAll(".menu").forEach(m=>{
         if (m.id !== `menu-${id}`) m.classList.add("hidden");
+        m.style.top = "";
+        m.style.bottom = "";
       });
-      const el = document.getElementById(`menu-${id}`);
-      if (el) el.classList.toggle("hidden");
+
+      const menu = document.getElementById(`menu-${id}`);
+      if (!menu) return;
+
+      const willOpen = menu.classList.contains("hidden");
+      menu.classList.toggle("hidden", !willOpen);
+      if (!willOpen) return;
+
+      // padrão: abre pra baixo
+      menu.style.top = "46px";
+      menu.style.bottom = "";
+
+      // se não couber embaixo, abre pra cima
+      const btn = document.querySelector(`button[onclick="toggleMenu('${id}')"]`);
+      if (!btn) return;
+
+      const btnRect = btn.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - btnRect.bottom;
+
+      // mede altura do menu
+      const menuRect = menu.getBoundingClientRect();
+      const menuHeight = menuRect.height || 190;
+
+      if (spaceBelow < menuHeight + 12) {
+        menu.style.top = "";
+        menu.style.bottom = "46px";
+      }
     };
+
     window.closeMenu = (id) => {
       const el = document.getElementById(`menu-${id}`);
       if (el) el.classList.add("hidden");
     };
+
     document.addEventListener("click", (e) => {
       const isMenu = e.target.closest(".menuWrap");
       if (!isMenu) document.querySelectorAll(".menu").forEach(m=>m.classList.add("hidden"));
@@ -806,15 +937,18 @@
       return saldo;
     }
 
+    function saldoTotalTodasContas(){
+      return contas.reduce((acc,c)=>acc + saldoConta(c.id), 0);
+    }
+
     window.renderMes = () => {
       const mes = Number($("mesSelecionado").value);
+
+      // totais (não filtrados): base do dashboard
       let r = 0, d = 0;
       const cat = {};
 
-      $("listaMes").innerHTML = "<h2>Lançamentos</h2>";
-
       const itensMes = dados.filter(i => Number(i.mes) === mes);
-      itensMes.sort((a,b)=> String(a.data||"").localeCompare(String(b.data||"")));
 
       for (const i of itensMes) {
         if (i.status === "pago") {
@@ -822,7 +956,36 @@
           else d += Number(i.valor||0);
           if (i.tipo === "despesa") cat[i.cat] = (cat[i.cat] || 0) + Number(i.valor||0);
         }
+      }
 
+      $("rMes").innerText = `R$ ${r.toFixed(2)}`;
+      $("dMes").innerText = `R$ ${d.toFixed(2)}`;
+      $("sMes").innerText = `R$ ${(r-d).toFixed(2)}`;
+
+      // filtros da lista
+      const fConta = $("fConta").value;
+      const fStatus = $("fStatus").value;
+      const fBusca = ($("fBusca").value || "").trim().toLowerCase();
+
+      let lista = itensMes.slice();
+      if (fConta !== "todas") {
+        lista = lista.filter(i => (i.contaId || contas[0]?.id) === fConta);
+      }
+      if (fStatus !== "todos") {
+        lista = lista.filter(i => i.status === fStatus);
+      }
+      if (fBusca) {
+        lista = lista.filter(i =>
+          String(i.cat||"").toLowerCase().includes(fBusca) ||
+          String(i.desc||"").toLowerCase().includes(fBusca)
+        );
+      }
+
+      lista.sort((a,b)=> String(a.data||"").localeCompare(String(b.data||"")));
+
+      $("listaMes").innerHTML = "<h2>Lançamentos</h2>";
+
+      for (const i of lista) {
         const statusTxt = (i.status === "pago") ? "Pago" : "Pendente";
         const contaNome = nomeConta(i.contaId || contas[0]?.id);
 
@@ -860,10 +1023,6 @@
         $("listaMes").appendChild(div);
       }
 
-      $("rMes").innerText = `R$ ${r.toFixed(2)}`;
-      $("dMes").innerText = `R$ ${d.toFixed(2)}`;
-      $("sMes").innerText = `R$ ${(r-d).toFixed(2)}`;
-
       if (!grafMes) {
         grafMes = new Chart($("graficoMes"), {
           type:'pie',
@@ -889,6 +1048,9 @@
       $("rAno").innerText = `R$ ${r.toFixed(2)}`;
       $("dAno").innerText = `R$ ${d.toFixed(2)}`;
       $("sAno").innerText = `R$ ${(r-d).toFixed(2)}`;
+
+      // saldo total das contas
+      $("saldoTotal").innerText = `R$ ${saldoTotalTodasContas().toFixed(2)}`;
 
       if (!grafAno) {
         grafAno = new Chart($("graficoAno"), {
@@ -916,6 +1078,7 @@
       contas.forEach(c=>{
         const saldo = saldoConta(c.id);
         const posNeg = saldo >= 0 ? "pos" : "neg";
+
         const div = document.createElement("div");
         div.className = "acc";
         div.innerHTML = `
@@ -923,10 +1086,65 @@
             <div class="name">${c.nome}</div>
             <div class="type">${c.tipo} • saldo inicial: R$ ${Number(c.saldoInicial||0).toFixed(2)}</div>
           </div>
-          <div class="bal ${posNeg}">R$ ${saldo.toFixed(2)}</div>
+
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <div class="bal ${posNeg}">R$ ${saldo.toFixed(2)}</div>
+
+            <div class="menuWrap">
+              <button class="menuBtn" onclick="toggleMenu('conta-${c.id}')" title="Ações">⋯</button>
+              <div class="menu hidden" id="menu-conta-${c.id}">
+                <button class="edit" onclick="editarConta('${c.id}');closeMenu('conta-${c.id}')">✏ Editar</button>
+                <button class="del" onclick="excluirConta('${c.id}');closeMenu('conta-${c.id}')">🗑 Excluir</button>
+              </div>
+            </div>
+          </div>
         `;
         grid.appendChild(div);
       });
+    };
+
+    // adapta closeMenu/toggleMenu para ids com prefixo "conta-"
+    const _oldToggle = window.toggleMenu;
+    window.toggleMenu = (id) => {
+      // se for conta-xxx, o menu real é menu-conta-xxx
+      const isConta = String(id).startsWith("conta-");
+      const menuId = isConta ? `menu-${id}`.replace("menu-conta-","menu-conta-") : `menu-${id}`;
+
+      // fecha outros
+      document.querySelectorAll(".menu").forEach(m=>{
+        if (m.id !== (isConta ? `menu-${id}`.replace("menu-conta-","menu-conta-") : `menu-${id}`)) m.classList.add("hidden");
+        m.style.top = "";
+        m.style.bottom = "";
+      });
+
+      const menu = document.getElementById(isConta ? `menu-${id}`.replace("menu-conta-","menu-conta-") : `menu-${id}`);
+      if (!menu) return;
+
+      const willOpen = menu.classList.contains("hidden");
+      menu.classList.toggle("hidden", !willOpen);
+      if (!willOpen) return;
+
+      menu.style.top = "46px";
+      menu.style.bottom = "";
+
+      const btn = document.querySelector(`button[onclick="toggleMenu('${id}')"]`);
+      if (!btn) return;
+
+      const btnRect = btn.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - btnRect.bottom;
+      const menuRect = menu.getBoundingClientRect();
+      const menuHeight = menuRect.height || 190;
+
+      if (spaceBelow < menuHeight + 12) {
+        menu.style.top = "";
+        menu.style.bottom = "46px";
+      }
+    };
+
+    window.closeMenu = (id) => {
+      const isConta = String(id).startsWith("conta-");
+      const el = document.getElementById(isConta ? `menu-${id}`.replace("menu-conta-","menu-conta-") : `menu-${id}`);
+      if (el) el.classList.add("hidden");
     };
 
     window.renderTransferenciasMes = () => {
@@ -950,11 +1168,16 @@
             <div class="title">${nomeConta(t.origemId)} → ${nomeConta(t.destinoId)}</div>
             <div class="meta">${t.desc || ""} • ${t.data || ""}</div>
           </div>
-          <div class="val">R$ ${Number(t.valor||0).toFixed(2)}</div>
+          <div class="tr val">R$ ${Number(t.valor||0).toFixed(2)}</div>
         `;
         $("listaTransf").appendChild(div);
       });
     };
+
+    document.addEventListener("click", (e) => {
+      const isMenu = e.target.closest(".menuWrap");
+      if (!isMenu) document.querySelectorAll(".menu").forEach(m=>m.classList.add("hidden"));
+    });
 
     onAuthStateChanged(auth, async (u) => {
       if (u) {
@@ -962,6 +1185,7 @@
         $("loginScreen").classList.add("hidden");
         $("cadastroScreen").classList.add("hidden");
         $("appScreen").classList.remove("hidden");
+
         await carregarTudo();
       } else {
         $("appScreen").classList.add("hidden");
