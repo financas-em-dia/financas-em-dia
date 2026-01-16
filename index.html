@@ -68,7 +68,6 @@
 
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-    .mes-box{margin-bottom:10px;}
 
     .top-tabs{
       display:flex;
@@ -155,6 +154,7 @@
     .tx .title{font-weight:900;font-size:.93rem}
     .tx .meta{font-size:.78rem;color:var(--muted);margin-top:2px}
     .tx .right{display:flex;align-items:center;gap:10px;}
+
     .amount{
       font-weight:950;
       min-width:115px;
@@ -164,45 +164,20 @@
     .amount.rec{color:var(--primary);}
     .amount.desp{color:var(--danger);}
 
-    .menuBtn{
-      width:42px;height:40px;
+    .iconBtn{
+      width:44px;height:40px;
       border-radius:14px;
       border:1px solid var(--border);
       background: rgba(255,255,255,0.04);
       color: var(--text);
-      font-size:18px;
-      line-height:0;
+      font-weight:900;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
-    .menuBtn:hover{background: rgba(255,255,255,0.07);}
-
-    .menuWrap{position:relative; z-index:9999;}
-    .menu{
-      position:absolute;
-      right:0;
-      top:46px;
-      width:195px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background: rgba(2,6,23,0.92);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      z-index:99999;
-    }
-    .menu button{
-      width:100%;
-      text-align:left;
-      padding:10px 12px;
-      border:none;
-      background:transparent;
-      color: var(--text);
-      font-weight:850;
-      font-size:.85rem;
-    }
-    .menu button:hover{background: rgba(255,255,255,0.06);}
-    .menu .ok{color: var(--primary);}
-    .menu .undo{color: var(--blue);}
-    .menu .edit{color: var(--warn);}
-    .menu .del{color: var(--danger);}
+    .iconBtn:hover{background: rgba(255,255,255,0.07);}
+    .iconBtn.ok{border-color: rgba(34,197,94,0.45); color: var(--primary);}
+    .iconBtn.undo{border-color: rgba(59,130,246,0.45); color: var(--blue);}
 
     /* CONTAS */
     .accountsGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px;}
@@ -236,8 +211,64 @@
     .tr .meta{font-size:.78rem;color:var(--muted);margin-top:2px}
     .tr .val{font-weight:950;min-width:115px;text-align:right;font-variant-numeric: tabular-nums;}
 
-    /* garantir que menus fiquem acima do canvas */
-    .chart-box{ position:relative; z-index:1; overflow:visible; }
+    /* MODAL AÇÕES (sempre acima do gráfico) */
+    .modalBack{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.55);
+      z-index: 999999;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding:14px;
+    }
+    .modal{
+      width:100%;
+      max-width:560px;
+      background: rgba(2,6,23,0.95);
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modalHeader{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(148,163,184,0.14);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+    .modalTitle{
+      font-weight:950;
+      font-size:.95rem;
+      color: var(--text);
+    }
+    .modalClose{
+      width:42px;height:38px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-weight:900;
+    }
+    .modalBody{padding:10px 14px;}
+    .modalBtn{
+      width:100%;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-weight:900;
+      text-align:left;
+      margin-bottom:10px;
+    }
+    .modalBtn:hover{background: rgba(255,255,255,0.07);}
+    .modalBtn.edit{border-color: rgba(245,158,11,0.35); color: var(--warn);}
+    .modalBtn.del{border-color: rgba(239,68,68,0.35); color: var(--danger);}
+
+    .chart-box{ overflow: visible; }
   </style>
 </head>
 
@@ -249,10 +280,7 @@
       <h1>🔐 Finanças em Dia</h1>
       <div class="box">
         <div class="field"><label>Email</label><input id="emailLogin" type="email" autocomplete="email"></div>
-        <div class="field">
-          <label>Senha</label>
-          <input id="senhaLogin" type="password" autocomplete="current-password">
-        </div>
+        <div class="field"><label>Senha</label><input id="senhaLogin" type="password" autocomplete="current-password"></div>
         <button class="main" id="btnLogin">Entrar</button>
         <button class="sec" onclick="showCadastro()">Primeiro acesso</button>
         <button class="sec" id="btnReset">Esqueci minha senha</button>
@@ -457,6 +485,20 @@
     </div>
   </div>
 
+  <!-- MODAL AÇÕES -->
+  <div id="actionsBack" class="modalBack hidden" onclick="closeActions(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modalHeader">
+        <div class="modalTitle" id="actionsTitle">Ações</div>
+        <button class="modalClose" onclick="closeActions()">X</button>
+      </div>
+      <div class="modalBody">
+        <button class="modalBtn edit" onclick="actionsEdit()">✏ Editar</button>
+        <button class="modalBtn del" onclick="actionsDelete()">🗑 Excluir</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import {
@@ -492,6 +534,9 @@
 
     let grafMes = null;
     let grafAno = null;
+
+    // state do modal de ações
+    let actionsCtx = { type:null, id:null };
 
     const $ = (id) => document.getElementById(id);
 
@@ -618,7 +663,6 @@
         o.text = c.nome;
         sel.appendChild(o);
       });
-      // mantém seleção se possível
       sel.value = Array.from(sel.options).some(o=>o.value===atual) ? atual : "todas";
     }
 
@@ -665,6 +709,39 @@
       renderTransferenciasMes();
     }
 
+    // ====== MODAL AÇÕES ======
+    function openActions(type, id, title){
+      actionsCtx = { type, id };
+      $("actionsTitle").innerText = title || "Ações";
+      $("actionsBack").classList.remove("hidden");
+    }
+    window.closeActions = (ev) => {
+      if (ev && ev.target && ev.target.id !== "actionsBack") return;
+      $("actionsBack").classList.add("hidden");
+      actionsCtx = { type:null, id:null };
+    };
+    window.actionsEdit = async () => {
+      const {type, id} = actionsCtx;
+      if (!type || !id) return;
+
+      if (type === "lanc") await editarLanc(id);
+      if (type === "transf") await editarTransf(id);
+      if (type === "conta") await editarConta(id);
+
+      closeActions();
+    };
+    window.actionsDelete = async () => {
+      const {type, id} = actionsCtx;
+      if (!type || !id) return;
+
+      if (type === "lanc") await excluirLancComFuturos(id);
+      if (type === "transf") await excluirTransf(id);
+      if (type === "conta") await excluirConta(id);
+
+      closeActions();
+    };
+
+    // ====== CATEGORIA ======
     window.novaCategoria = async () => {
       const n = prompt("Nova categoria:");
       if (!n) return;
@@ -672,6 +749,7 @@
       await carregarCategorias();
     };
 
+    // ====== CONTAS ======
     window.criarConta = async () => {
       try{
         const nome = ($("contaNome").value || "").trim();
@@ -688,7 +766,7 @@
 
         await carregarContas();
         renderContas();
-        renderAno(); // atualiza saldo total
+        renderAno();
         alert("Conta criada!");
       }catch(e){
         console.error(e);
@@ -696,7 +774,7 @@
       }
     };
 
-    window.editarConta = async (contaId) => {
+    async function editarConta(contaId){
       const c = contas.find(x=>x.id===contaId);
       if (!c) return;
 
@@ -715,13 +793,14 @@
         await carregarContas();
         renderContas();
         renderAno();
+        renderMes();
       }catch(e){
         console.error(e);
         alert("Erro ao editar conta.");
       }
-    };
+    }
 
-    window.excluirConta = async (contaId) => {
+    async function excluirConta(contaId){
       const c = contas.find(x=>x.id===contaId);
       if (!c) return;
 
@@ -729,12 +808,11 @@
         return alert("A Conta Padrão não pode ser excluída.");
       }
 
-      // Verifica se a conta está em uso
       const temLanc = dados.some(l => (l.contaId || contas[0]?.id) === contaId);
       const temTransf = transferencias.some(t => t.origemId === contaId || t.destinoId === contaId);
 
       if (temLanc || temTransf) {
-        return alert("Essa conta está em uso em lançamentos/transferências. Edite os itens primeiro antes de excluir.");
+        return alert("Essa conta está em uso em lançamentos/transferências. Primeiro edite/apague esses itens, depois exclua a conta.");
       }
 
       if (!confirm(`Excluir a conta "${c.nome}"?`)) return;
@@ -744,12 +822,14 @@
         await carregarContas();
         renderContas();
         renderAno();
+        renderMes();
       }catch(e){
         console.error(e);
         alert("Erro ao excluir conta.");
       }
-    };
+    }
 
+    // ====== TRANSFERÊNCIAS ======
     window.criarTransferencia = async () => {
       try{
         const origemId = $("tOrigem").value;
@@ -784,6 +864,56 @@
       }
     };
 
+    async function editarTransf(id){
+      const t = transferencias.find(x=>x.id===id);
+      if (!t) return;
+
+      const nv = prompt("Novo valor:", String(t.valor ?? 0));
+      if (nv === null) return;
+      const valor = Number(nv);
+      if (!Number.isFinite(valor) || valor <= 0) return alert("Valor inválido.");
+
+      const nd = prompt("Nova descrição:", String(t.desc ?? ""));
+      if (nd === null) return;
+
+      const newData = prompt("Nova data (AAAA-MM-DD):", String(t.data ?? ""));
+      if (newData === null) return;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(newData)) return alert("Data inválida. Use AAAA-MM-DD.");
+
+      const mes = new Date(newData).getMonth();
+
+      try{
+        await updateDoc(doc(db,"users",userId,"transferencias",id),{valor, desc:nd, data:newData, mes});
+        await carregarTransferencias();
+        renderTransferenciasMes();
+        renderContas();
+        renderAno();
+      }catch(e){
+        console.error(e);
+        alert("Erro ao editar transferência.");
+      }
+    }
+
+    async function excluirTransf(id){
+      const t = transferencias.find(x=>x.id===id);
+      if (!t) return;
+
+      if (!confirm("Excluir esta transferência?")) return;
+
+      try{
+        await deleteDoc(doc(db,"users",userId,"transferencias",id));
+        await carregarTransferencias();
+        renderTransferenciasMes();
+        renderContas();
+        renderAno();
+        renderMes();
+      }catch(e){
+        console.error(e);
+        alert("Erro ao excluir transferência.");
+      }
+    }
+
+    // ====== LANÇAMENTOS ======
     window.adicionarLancamento = async () => {
       if (!$("tipo").value || !$("categoria").value || !$("valor").value || !$("data").value || !$("repete").value) {
         return alert("Preencha todos os campos");
@@ -828,17 +958,62 @@
       renderContas();
     };
 
-    window.excluir = async (id) => {
+    async function editarLanc(id){
+      const l = dados.find(i=>i.id===id);
+      if (!l) return;
+
+      const nv = prompt("Novo valor:", String(l.valor ?? ""));
+      if (nv === null) return;
+      const num = Number(nv);
+      if (!Number.isFinite(num) || num < 0) return alert("Valor inválido.");
+
+      try{
+        await updateDoc(doc(db,"users",userId,"lancamentos",id),{valor:num});
+        await carregarLancamentos();
+        renderMes(); renderAno(); renderContas();
+      }catch(e){
+        console.error(e);
+        alert("Erro ao editar lançamento.");
+      }
+    }
+
+    // ✅ Exclui este lançamento + futuros pendentes do mesmo grupo
+    async function excluirLancComFuturos(id){
       const item = dados.find(i=>i.id===id);
       if (!item) return;
 
-      const q = query(collection(db,"users",userId,"lancamentos"), where("grupo","==",item.grupo));
-      const snap = await getDocs(q);
-      for (const d of snap.docs) await deleteDoc(d.ref);
+      if (!confirm("Excluir este lançamento e todos os futuros pendentes deste mesmo grupo?")) return;
 
-      await carregarLancamentos();
-      renderMes(); renderAno(); renderContas();
-    };
+      const grupo = item.grupo;
+      const mesAtual = Number(item.mes);
+
+      try{
+        // pega todos do grupo
+        const q = query(collection(db,"users",userId,"lancamentos"), where("grupo","==",grupo));
+        const snap = await getDocs(q);
+
+        // regra: apaga:
+        // - o item clicado (sempre)
+        // - os itens do mesmo grupo com status pendente e mes >= mesAtual
+        for (const d of snap.docs) {
+          const data = d.data();
+          const docId = d.id;
+
+          const isThis = (docId === id);
+          const isFuturePending = (data.status === "pendente" && Number(data.mes) >= mesAtual);
+
+          if (isThis || isFuturePending) {
+            await deleteDoc(d.ref);
+          }
+        }
+
+        await carregarLancamentos();
+        renderMes(); renderAno(); renderContas();
+      }catch(e){
+        console.error(e);
+        alert("Erro ao excluir lançamentos do grupo.");
+      }
+    }
 
     window.pagar = async (id) => {
       await updateDoc(doc(db,"users",userId,"lancamentos",id),{status:"pago"});
@@ -852,65 +1027,7 @@
       renderMes(); renderAno(); renderContas();
     };
 
-    window.editar = async (id) => {
-      const l = dados.find(i=>i.id===id);
-      if (!l) return;
-      const nv = prompt("Novo valor:", String(l.valor ?? ""));
-      if (nv === null) return;
-      const num = Number(nv);
-      if (!Number.isFinite(num) || num < 0) return alert("Valor inválido.");
-      await updateDoc(doc(db,"users",userId,"lancamentos",id),{valor:num});
-      await carregarLancamentos();
-      renderMes(); renderAno(); renderContas();
-    };
-
-    // ===== menus ⋯ =====
-    window.toggleMenu = (id) => {
-      // fecha outros menus e reseta posição
-      document.querySelectorAll(".menu").forEach(m=>{
-        if (m.id !== `menu-${id}`) m.classList.add("hidden");
-        m.style.top = "";
-        m.style.bottom = "";
-      });
-
-      const menu = document.getElementById(`menu-${id}`);
-      if (!menu) return;
-
-      const willOpen = menu.classList.contains("hidden");
-      menu.classList.toggle("hidden", !willOpen);
-      if (!willOpen) return;
-
-      // padrão: abre pra baixo
-      menu.style.top = "46px";
-      menu.style.bottom = "";
-
-      // se não couber embaixo, abre pra cima
-      const btn = document.querySelector(`button[onclick="toggleMenu('${id}')"]`);
-      if (!btn) return;
-
-      const btnRect = btn.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - btnRect.bottom;
-
-      // mede altura do menu
-      const menuRect = menu.getBoundingClientRect();
-      const menuHeight = menuRect.height || 190;
-
-      if (spaceBelow < menuHeight + 12) {
-        menu.style.top = "";
-        menu.style.bottom = "46px";
-      }
-    };
-
-    window.closeMenu = (id) => {
-      const el = document.getElementById(`menu-${id}`);
-      if (el) el.classList.add("hidden");
-    };
-
-    document.addEventListener("click", (e) => {
-      const isMenu = e.target.closest(".menuWrap");
-      if (!isMenu) document.querySelectorAll(".menu").forEach(m=>m.classList.add("hidden"));
-    });
-
+    // ====== RENDER ======
     function nomeConta(id){
       const c = contas.find(x=>x.id===id);
       return c ? c.nome : "Conta Padrão";
@@ -944,7 +1061,7 @@
     window.renderMes = () => {
       const mes = Number($("mesSelecionado").value);
 
-      // totais (não filtrados): base do dashboard
+      // totais (não filtrados)
       let r = 0, d = 0;
       const cat = {};
 
@@ -996,6 +1113,8 @@
         const div = document.createElement("div");
         div.className = "tx";
 
+        const isPendente = i.status === "pendente";
+
         div.innerHTML = `
           <div>
             <div class="title">${i.cat}</div>
@@ -1005,18 +1124,13 @@
           <div class="right">
             <div class="amount ${i.tipo==='receita'?'rec':'desp'}">R$ ${Number(i.valor||0).toFixed(2)}</div>
 
-            <div class="menuWrap">
-              <button class="menuBtn" onclick="toggleMenu('${i.id}')" title="Ações">⋯</button>
-              <div class="menu hidden" id="menu-${i.id}">
-                ${
-                  i.status==="pendente"
-                    ? `<button class="ok" onclick="pagar('${i.id}');closeMenu('${i.id}')">✔ Confirmar pagamento</button>`
-                    : `<button class="undo" onclick="voltar('${i.id}');closeMenu('${i.id}')">↩ Marcar como pendente</button>`
-                }
-                <button class="edit" onclick="editar('${i.id}');closeMenu('${i.id}')">✏ Editar valor</button>
-                <button class="del" onclick="excluir('${i.id}');closeMenu('${i.id}')">🗑 Excluir</button>
-              </div>
-            </div>
+            ${
+              isPendente
+              ? `<button class="iconBtn ok" title="Confirmar pagamento" onclick="pagar('${i.id}')">✔</button>`
+              : `<button class="iconBtn undo" title="Marcar como pendente" onclick="voltar('${i.id}')">↩</button>`
+            }
+
+            <button class="iconBtn" title="Editar/Excluir" onclick="openActions('lanc','${i.id}','Ações do lançamento')">⋯</button>
           </div>
         `;
 
@@ -1048,8 +1162,6 @@
       $("rAno").innerText = `R$ ${r.toFixed(2)}`;
       $("dAno").innerText = `R$ ${d.toFixed(2)}`;
       $("sAno").innerText = `R$ ${(r-d).toFixed(2)}`;
-
-      // saldo total das contas
       $("saldoTotal").innerText = `R$ ${saldoTotalTodasContas().toFixed(2)}`;
 
       if (!grafAno) {
@@ -1089,62 +1201,11 @@
 
           <div style="display:flex; gap:10px; align-items:flex-start;">
             <div class="bal ${posNeg}">R$ ${saldo.toFixed(2)}</div>
-
-            <div class="menuWrap">
-              <button class="menuBtn" onclick="toggleMenu('conta-${c.id}')" title="Ações">⋯</button>
-              <div class="menu hidden" id="menu-conta-${c.id}">
-                <button class="edit" onclick="editarConta('${c.id}');closeMenu('conta-${c.id}')">✏ Editar</button>
-                <button class="del" onclick="excluirConta('${c.id}');closeMenu('conta-${c.id}')">🗑 Excluir</button>
-              </div>
-            </div>
+            <button class="iconBtn" title="Editar/Excluir conta" onclick="openActions('conta','${c.id}','Ações da conta')">⋯</button>
           </div>
         `;
         grid.appendChild(div);
       });
-    };
-
-    // adapta closeMenu/toggleMenu para ids com prefixo "conta-"
-    const _oldToggle = window.toggleMenu;
-    window.toggleMenu = (id) => {
-      // se for conta-xxx, o menu real é menu-conta-xxx
-      const isConta = String(id).startsWith("conta-");
-      const menuId = isConta ? `menu-${id}`.replace("menu-conta-","menu-conta-") : `menu-${id}`;
-
-      // fecha outros
-      document.querySelectorAll(".menu").forEach(m=>{
-        if (m.id !== (isConta ? `menu-${id}`.replace("menu-conta-","menu-conta-") : `menu-${id}`)) m.classList.add("hidden");
-        m.style.top = "";
-        m.style.bottom = "";
-      });
-
-      const menu = document.getElementById(isConta ? `menu-${id}`.replace("menu-conta-","menu-conta-") : `menu-${id}`);
-      if (!menu) return;
-
-      const willOpen = menu.classList.contains("hidden");
-      menu.classList.toggle("hidden", !willOpen);
-      if (!willOpen) return;
-
-      menu.style.top = "46px";
-      menu.style.bottom = "";
-
-      const btn = document.querySelector(`button[onclick="toggleMenu('${id}')"]`);
-      if (!btn) return;
-
-      const btnRect = btn.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - btnRect.bottom;
-      const menuRect = menu.getBoundingClientRect();
-      const menuHeight = menuRect.height || 190;
-
-      if (spaceBelow < menuHeight + 12) {
-        menu.style.top = "";
-        menu.style.bottom = "46px";
-      }
-    };
-
-    window.closeMenu = (id) => {
-      const isConta = String(id).startsWith("conta-");
-      const el = document.getElementById(isConta ? `menu-${id}`.replace("menu-conta-","menu-conta-") : `menu-${id}`);
-      if (el) el.classList.add("hidden");
     };
 
     window.renderTransferenciasMes = () => {
@@ -1168,17 +1229,30 @@
             <div class="title">${nomeConta(t.origemId)} → ${nomeConta(t.destinoId)}</div>
             <div class="meta">${t.desc || ""} • ${t.data || ""}</div>
           </div>
-          <div class="tr val">R$ ${Number(t.valor||0).toFixed(2)}</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div class="val">R$ ${Number(t.valor||0).toFixed(2)}</div>
+            <button class="iconBtn" title="Editar/Excluir transferência" onclick="openActions('transf','${t.id}','Ações da transferência')">⋯</button>
+          </div>
         `;
         $("listaTransf").appendChild(div);
       });
     };
 
-    document.addEventListener("click", (e) => {
-      const isMenu = e.target.closest(".menuWrap");
-      if (!isMenu) document.querySelectorAll(".menu").forEach(m=>m.classList.add("hidden"));
-    });
+    // ====== FILTRO CONTAS ======
+    function preencherFiltroContas(){
+      const sel = $("fConta");
+      const atual = sel.value || "todas";
+      sel.innerHTML = `<option value="todas">Todas as contas</option>`;
+      contas.forEach(c=>{
+        const o = document.createElement("option");
+        o.value = c.id;
+        o.text = c.nome;
+        sel.appendChild(o);
+      });
+      sel.value = Array.from(sel.options).some(o=>o.value===atual) ? atual : "todas";
+    }
 
+    // ====== AUTH ======
     onAuthStateChanged(auth, async (u) => {
       if (u) {
         userId = u.uid;
@@ -1192,9 +1266,16 @@
         showLogin();
       }
     });
+
+    // expõe para HTML
+    window.openActions = openActions;
+    window.editarConta = editarConta;
+    window.excluirConta = excluirConta;
+    window.editarLanc = editarLanc;
+    window.excluirLancComFuturos = excluirLancComFuturos;
+    window.editarTransf = editarTransf;
+    window.excluirTransf = excluirTransf;
   </script>
 </body>
 </html>
-
-
 
