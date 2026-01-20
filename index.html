@@ -202,6 +202,16 @@
     .amount.desp{color:var(--danger);}
 
     .iconBtn{
+      /* Status do lançamento */
+.iconBtn.pending{
+  border-color: rgba(239,68,68,0.55); /* vermelho */
+  color: var(--danger);
+}
+.iconBtn.paid{
+  border-color: rgba(34,197,94,0.55); /* verde */
+  color: var(--primary);
+}
+
       width:44px;height:40px;
       border-radius:14px;
       border:1px solid var(--border);
@@ -306,7 +316,6 @@
     .modalBtn.ok{border-color: rgba(34,197,94,0.35); color: var(--primary);}
 
     /* Lançamentos em 2 colunas */
-    .monthGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
     @media (max-width:520px){ .monthGrid{grid-template-columns:1fr;} }
 
   </style>
@@ -431,6 +440,16 @@
                 <input id="fBusca" placeholder="categoria ou descrição">
               </div>
             </div>
+            <div class="field">
+  <label>Tipo</label>
+  <select id="fTipoLanc">
+    <option value="todos">Todos</option>
+    <option value="unica">Única</option>
+    <option value="fixa">Fixa</option>
+    <option value="parcelada">Parcelada</option>
+  </select>
+</div>
+
             <button class="btnGhost" onclick="limparFiltros()">Limpar filtros</button>
           </div>
         </details>
@@ -501,19 +520,29 @@
           </div>
         </details>
 
-        <!-- LISTAS EM 2 COLUNAS -->
+        <!-- LISTAS EM MENUS SUSPENSOS -->
         <div class="list">
-          <div class="monthGrid">
-            <div>
-              <h2>Receitas</h2>
+          <details class="accordion" id="accReceitas" open>
+            <summary>
+              <span>💚 Receitas</span>
+              <span class="chev">⌄</span>
+            </summary>
+            <div class="accBody">
               <div id="listaReceitas"></div>
             </div>
-            <div>
-              <h2>Despesas</h2>
+          </details>
+
+          <details class="accordion" id="accDespesas" open>
+            <summary>
+              <span>❤️ Despesas</span>
+              <span class="chev">⌄</span>
+            </summary>
+            <div class="accBody">
               <div id="listaDespesas"></div>
             </div>
-          </div>
+          </details>
         </div>
+
 
         <div class="chart-box"><canvas id="graficoMes"></canvas></div>
       </div>
@@ -854,6 +883,8 @@
       $("fStatus").onchange = renderMes;
       $("fBusca").oninput = renderMes;
       $("fConta").onchange = renderMes;
+      $("fTipoLanc").onchange = renderMes;
+
     }
 
     function preencherSelectCategorias(){
@@ -1282,6 +1313,7 @@
     window.limparFiltros = () => {
       $("fConta").value = "todas";
       $("fStatus").value = "todos";
+      $("fTipoLanc").value = "todos";
       $("fBusca").value = "";
       $("accFiltros").open = false;
       renderMes();
@@ -1380,16 +1412,32 @@
       $("dMes").innerText=money(d);
       $("sMes").innerText=money(r-d);
 
-      // aplica filtros
+           // aplica filtros
       const fConta=$("fConta").value;
       const fStatus=$("fStatus").value;
       const fBusca=($("fBusca").value||"").trim().toLowerCase();
+      const fTipoLanc = ($("fTipoLanc")?.value || "todos");
 
       let lista = itensMes.slice();
+
 
       if(fConta!=="todas") lista = lista.filter(i=>(i.contaId||contas[0]?.id)===fConta);
       if(fStatus!=="todos") lista = lista.filter(i=>i.status===fStatus);
       if(fBusca) lista = lista.filter(i=>String(i.cat||"").toLowerCase().includes(fBusca)||String(i.desc||"").toLowerCase().includes(fBusca));
+
+            // filtra por tipo de lançamento (Única/Fixa/Parcelada)
+      if (fTipoLanc !== "todos") {
+        lista = lista.filter(i => {
+          const isFixa = !!i.fixed;
+          const isParcelada = !!i.parcela;
+          const isUnica = !isFixa && !isParcelada;
+
+          if (fTipoLanc === "fixa") return isFixa;
+          if (fTipoLanc === "parcelada") return isParcelada;
+          if (fTipoLanc === "unica") return isUnica;
+          return true;
+        });
+      }
 
       // ordena por data (string YYYY-MM-DD funciona bem)
       lista.sort((a,b)=>String(a.data||"").localeCompare(String(b.data||"")));
@@ -1530,3 +1578,4 @@
   </script>
 </body>
 </html>
+
