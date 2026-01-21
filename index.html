@@ -345,6 +345,24 @@
     justify-content:flex-end;
   }
 }
+.txClick{
+  cursor:pointer;
+}
+.txClick:hover{
+  background: rgba(255,255,255,0.04);
+  border-radius:14px;
+  padding-left:10px;
+  padding-right:10px;
+}
+html, body{
+  height:100%;
+  overscroll-behavior-y: auto; /* permite “puxar” */
+}
+#telaCartoes{
+  max-width:620px;
+  margin:0 auto;
+}
+
     
   </style>
 </head>
@@ -1718,19 +1736,22 @@ function renderCartoes() {
     const contaNome = nomeConta(c.contaPagamentoId);
 
     const div = document.createElement("div");
-    div.className = "tx";
-    div.innerHTML = `
-      <div>
-        <div class="title">${escapeHtml(c.nome || "")}</div>
-        <div class="meta">
-          Limite: ${money(c.limiteTotal)} • Paga em: ${escapeHtml(contaNome)} • Fecha dia ${Number(c.fechamentoDia||0)} • Vence dia ${Number(c.vencimentoDia||0)}
-        </div>
-      </div>
-      <div class="right">
-        <button class="iconBtn" onclick="abrirCartao('${c.id}')" title="Abrir">...</button>
-      </div>
-    `;
-    el.appendChild(div);
+div.className = "tx txClick";
+div.onclick = () => abrirCartao(c.id);
+
+div.innerHTML = `
+  <div>
+    <div class="title">${escapeHtml(c.nome || "")}</div>
+    <div class="meta">
+      Limite: ${money(c.limiteTotal)} • Paga em: ${escapeHtml(contaNome)} • Fecha dia ${Number(c.fechamentoDia||0)} • Vence dia ${Number(c.vencimentoDia||0)}
+    </div>
+  </div>
+  <div class="right" onclick="event.stopPropagation()">
+    <button class="iconBtn" onclick="abrirOpcoesCartao('${c.id}')" title="Opções">⚙</button>
+  </div>
+`;
+el.appendChild(div);
+
   });
 }
 
@@ -1929,11 +1950,35 @@ window.salvarCompraCartao = async () => {
   closeActions();
   abrirCartao(cartaoAtualId);
 };
+window.abrirOpcoesCartao = (id) => {
+  const c = cartoes.find(x => x.id === id);
+  if (!c) return;
+
+  openActions(`Opções • ${escapeHtml(c.nome)}`, `
+    <button class="modalBtn del" onclick="excluirCartao('${id}')">🗑 Excluir cartão</button>
+    <div class="mini">Obs.: não permite excluir se existir compra registrada nesse cartão.</div>
+  `);
+};
+
+window.excluirCartao = async (id) => {
+  const c = cartoes.find(x => x.id === id);
+  if (!c) return;
+
+  const emUso = cartaoCompras.some(p => p.cartaoId === id);
+  if (emUso) return alert("Não posso excluir: este cartão tem compras registradas. Apague as compras primeiro.");
+
+  if (!confirm(`Excluir o cartão "${c.nome}"?`)) return;
+
+  await deleteDoc(doc(db, "users", userId, "cartoes", id));
+  closeActions();
+  await carregarCartoes();
+};
 
     
   </script>
 </body>
 </html>
+
 
 
 
