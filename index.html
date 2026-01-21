@@ -740,6 +740,8 @@
     let contas = [];
     let dados = [];
     let transferencias = [];
+    let cartaoCompras = []; // compras do cartão
+    let cartaoAtualId = null;
     let grafMes = null;
     let grafAno = null;
 
@@ -1646,6 +1648,8 @@ contas.forEach(c=>{
 
         await carregarTudo();
         await carregarCartoes();
+        await carregarComprasCartao();
+
 
 
         showTela("ano");
@@ -1731,13 +1735,206 @@ function renderCartoes() {
 }
 
 window.abrirCartao = (id) => {
-  alert("Cartão selecionado (fase 2): " + id);
+  cartaoAtualId = id;
+  const c = cartoes.find(x => x.id === id);
+  if (!c) return;
+
+  // mês/ano padrão: mês selecionado na tela mês
+  const mes = Number($("mesSelecionado")?.value ?? new Date().getMonth());
+  const ano = anoSelecionado();
+
+  openActions(`Fatura • ${escapeHtml(c.nome)}`, `
+    <div class="row2">
+      <div class="field">
+        <label>Mês</label>
+        <select id="fatMes">
+          ${mesesNomes.map((m,i)=>`<option value="${i}" ${i===mes?"selected":""}>${m}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field">
+        <label>Ano</label>
+        <select id="fatAno">
+          ${Array.from({length:5},(_,k)=>anoAtual()-2+k).map(a=>`<option value="${a}" ${a===ano?"selected":""}>${a}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:10px;">
+      <h3>Total da fatura</h3>
+      <div class="value" id="fatTotal">${money(0)}</div>
+      <div class="sub" id="fatInfo">—</div>
+    </div>
+
+    <button class="modalBtn ok" onclick="abrirCompraCartao()">➕ Adicionar compra</button>
+    <div style="margin-top:10px;" id="fatLista"></div>
+  `);
+
+  // listeners
+  $("fatMes").onchange = () => renderFaturaCartao();
+  $("fatAno").onchange = () => renderFaturaCartao();
+
+  renderFaturaCartao();
+};
+
+async function carregarComprasCartao() {
+  cartaoCompras = [];
+  const snap = await getDocs(collection(db, "users", userId, "comprasCartao"));
+  snap.forEach(d => cartaoCompras.push({ id: d.id, ...d.data() }));
+}
+function faturaMesAno(cartao, dataISO) {
+  // dataISO: "YYYY-MM-DD"
+  const dt = new Date(dataISO + "T12:00:00");
+  let mes = dt.getMonth();       // 0-11
+  let ano = dt.getFullYear();
+  const dia = dt.getDate();
+
+  // Se a compra foi FEITA depois do fechamento, cai na fatura do próximo mês
+  if (dia > Number(cartao.fechamentoDia || 0)) {
+    mes += 1;
+    if (mes > 11) { mes = 0; ano += 1; }
+  }
+  return { mes, ano };
+}
+function renderFaturaCartao() {
+  const c = cartoes.find(x => x.id === cartaoAtualId);
+  if (!c) return;
+
+  const mes = Number($("fatMes").value);
+  const ano = Number($("fatAno").value);
+
+  // pega parcelas que pertencem a esta fatura
+  const itens = cartaoCompras
+    .filter(p => p.cartaoId === cartaoAtualId && Number(p.mes) === mes && Number(p.ano) === ano)
+    .sort((a,b)=>String(a.data||"").localeCompare(String(b.data||"")));
+
+  let total = 0;
+  itens.forEach(p => total += Number(p.valorParcela || p.valor || 0));
+
+  $("fatTotal").innerText = money(total);
+  $("fatInfo").innerText = `${itens.length} item(ns)`;
+
+  const box = $("fatLista");
+  box.innerHTML = "";
+
+  if (itens.length === 0) {
+    box.innerHTML = `<div class="mini">Nenhuma compra nesta fatura.</div>`;
+    return;
+  }
+
+  itens.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "tx";
+    const info = p.parcelas > 1 ? `${p.parcelaAtual}/${p.parcelas}` : "À vista";
+    const dataVis = p.data ? p.data.split("-").reverse().join("/") : "";
+
+    div.innerHTML = `
+      <div>
+        <div class="title">${escapeHtml(p.categoria || "")}</div>
+        <div class="meta">${escapeHtml(p.descricao || "")} • ${escapeHtml(dataVis)} • ${escapeHtml(info)}</div>
+      </div>
+      <div class="right">
+        <div class="amount desp">${money(p.valorParcela || p.valor)}</div>
+      </div>
+    `;
+    box.appendChild(div);
+  });
+}
+window.abrirCompraCartao = () => {
+  const c = cartoes.find(x => x.id === cartaoAtualId);
+  if (!c) return;
+
+  const catsOpt = categorias.map(ct=>`<option value="${escapeHtml(ct.nome)}">${escapeHtml(ct.nome)}</option>`).join("");
+
+  openActions(`Nova compra • ${escapeHtml(c.nome)}`, `
+    <div class="field">
+      <label>Categoria</label>
+      <select id="ccCat">${catsOpt}</select>
+    </div>
+
+    <div class="field">
+      <label>Descrição</label>
+      <input id="ccDesc" placeholder="Ex: Mercado">
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Valor total</label>
+        <input id="ccValor" type="number" step="0.01">
+      </div>
+      <div class="field">
+        <label>Data da compra</label>
+        <input id="ccData" type="date">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Parcelas</label>
+        <input id="ccParc" type="number" min="1" value="1">
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <div class="mini">1 = à vista</div>
+      </div>
+    </div>
+
+    <button class="modalBtn ok" onclick="salvarCompraCartao()">💾 Salvar compra</button>
+  `);
+
+  $("ccData").valueAsDate = new Date();
+};
+window.salvarCompraCartao = async () => {
+  const c = cartoes.find(x => x.id === cartaoAtualId);
+  if (!c) return;
+
+  const categoria = $("ccCat").value;
+  const descricao = ($("ccDesc").value || "").trim();
+  const valorTotal = Number($("ccValor").value || 0);
+  const data = $("ccData").value;
+  const parcelas = Number($("ccParc").value || 1);
+
+  if (!categoria) return alert("Selecione a categoria.");
+  if (!Number.isFinite(valorTotal) || valorTotal <= 0) return alert("Valor inválido.");
+  if (!data) return alert("Data inválida.");
+  if (!Number.isFinite(parcelas) || parcelas < 1) return alert("Parcelas inválidas.");
+
+  const valorParcela = valorTotal / parcelas;
+
+  // mês/ano da fatura da 1ª parcela (conforme fechamento)
+  const { mes: mesBase, ano: anoBase } = faturaMesAno(c, data);
+
+  // cria uma “parcela por documento” (fica simples de somar por fatura)
+  for (let i = 0; i < parcelas; i++) {
+    let mes = mesBase + i;
+    let ano = anoBase;
+    while (mes > 11) { mes -= 12; ano += 1; }
+
+    await addDoc(collection(db, "users", userId, "comprasCartao"), {
+      cartaoId: cartaoAtualId,
+      categoria,
+      descricao,
+      data,
+      parcelas,
+      parcelaAtual: i + 1,
+      valorTotal,
+      valorParcela,
+      mes,
+      ano,
+      criadoEm: new Date()
+    });
+  }
+
+  await carregarComprasCartao();
+  // volta pra fatura
+  closeActions();
+  abrirCartao(cartaoAtualId);
 };
 
     
   </script>
 </body>
 </html>
+
 
 
 
