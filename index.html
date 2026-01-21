@@ -760,6 +760,7 @@ html, body{
     let transferencias = [];
     let cartaoCompras = []; // compras do cartão
     let cartaoAtualId = null;
+    let pagamentosFatura = [];
     let grafMes = null;
     let grafAno = null;
 
@@ -1667,6 +1668,8 @@ contas.forEach(c=>{
         await carregarTudo();
         await carregarCartoes();
         await carregarComprasCartao();
+        await carregarPagamentosFatura();
+
 
 
 
@@ -1787,6 +1790,8 @@ window.abrirCartao = (id) => {
     </div>
 
     <button class="modalBtn ok" onclick="abrirCompraCartao()">➕ Adicionar compra</button>
+    <button class="modalBtn ok" onclick="abrirPagarFatura()">💸 Pagar fatura</button>
+
     <div style="margin-top:10px;" id="fatLista"></div>
   `);
 
@@ -1833,6 +1838,17 @@ function renderFaturaCartao() {
 
   $("fatTotal").innerText = money(total);
   $("fatInfo").innerText = `${itens.length} item(ns)`;
+    const pg = pagamentosFatura.find(x =>
+    x.cartaoId === cartaoAtualId &&
+    Number(x.mes) === mes &&
+    Number(x.ano) === ano
+  );
+
+  if (pg) {
+    const dataVis = pg.data ? pg.data.split("-").reverse().join("/") : "";
+    $("fatInfo").innerText = `Paga em ${dataVis} • ${escapeHtml(nomeConta(pg.contaId))}`;
+  }
+
 
   const box = $("fatLista");
   box.innerHTML = "";
@@ -1973,11 +1989,133 @@ window.excluirCartao = async (id) => {
   closeActions();
   await carregarCartoes();
 };
+async function carregarPagamentosFatura(){
+  pagamentosFatura = [];
+  const snap = await getDocs(collection(db, "users", userId, "pagamentosFatura"));
+  snap.forEach(d => pagamentosFatura.push({ id: d.id, ...d.data() }));
+}
+window.abrirPagarFatura = () => {
+  const c = cartoes.find(x => x.id === cartaoAtualId);
+  if (!c) return;
+
+  const mes = Number($("fatMes").value);
+  const ano = Number($("fatAno").value);
+
+  // total atual calculado na tela
+  const totalTxt = ($("fatTotal").innerText || "").trim();
+
+  const contasOpt = contas.map(ct =>
+    `<option value="${ct.id}" ${ct.id===c.contaPagamentoId?"selected":""}>${escapeHtml(ct.nome)}</option>`
+  ).join("");
+
+  openActions(`Pagar fatura • ${escapeHtml(c.nome)}`, `
+    <div class="card" style="margin-top:8px;">
+      <h3>Total da fatura</h3>
+      <div class="value">${escapeHtml(totalTxt)}</div>
+      <div class="sub">${mesesNomes[mes]} / ${ano}</div>
+    </div>
+
+    <div class="field" style="margin-top:10px;">
+      <label>Conta para pagamento</label>
+      <select id="pgConta">${contasOpt}</select>
+    </div>
+
+    <div class="field">
+      <label>Data do pagamento</label>
+      <input id="pgData" type="date">
+    </div>
+
+    <button class="modalBtn ok" onclick="confirmarPagamentoFatura()">✅ Confirmar pagamento</button>
+  `);
+
+  $("pgData").valueAsDate = new Date();
+
+  // guarda mês/ano “ativos” em atributos (simples e seguro)
+  $("pgConta").dataset.mes = String(mes);
+  $("pgConta").dataset.ano = String(ano);
+};
+window.confirmarPagamentoFatura = async () => {
+  const c = cartoes.find(x => x.id === cartaoAtualId);
+  if (!c) return;
+
+  const contaId = $("pgConta").value;
+  const mes = Number($("pgConta").dataset.mes);
+  const ano = Number($("pgConta").dataset.ano);
+  const data = $("pgData").value;
+
+  if (!contaId) return alert("Selecione a conta.");
+  if (!data) return alert("Informe a data.");
+
+  // evita pagar duas vezes
+  const jaPago = pagamentosFatura.some(x =>
+    x.cartaoId === cartaoAtualId && Number(x.mes) === mes && Number(x.ano) === ano
+  );
+  if (jaPago) return alert("Esta fatura já está paga.");
+
+  // soma total da fatura desse mês/ano
+  const itens = cartaoCompras.filter(p =>
+    p.cartaoId === cartaoAtualId &&
+    Number(p.mes) === mes &&
+    Number(p.ano) === ano
+  );
+
+  let total = 0;
+  itens.forEach(p => total += Number(p.valorParcela || p.valor || 0));
+
+  if (total <= 0) return alert("Não há itens nesta fatura para pagar.");
+
+  // cria lançamento como DESPESA PAGA (impacta saldo da conta)
+  const mesLanc = new Date(data + "T12:00:00").getMonth();
+  const anoLanc = Number(data.slice(0,4)) || anoSelecionado();
+
+  await addDoc(collection(db, "users", userId, "lancamentos"), {
+    tipo: "despesa",
+    cat: "Cartão de crédito",
+    desc: `Fatura ${c.nome} • ${mesesNomes[mes]} / ${ano}`,
+    mes: mesLanc,
+    ano: anoLanc,
+    data,
+    valor: total,
+    status: "pago",
+    contaId,
+    grupo: `fat_${cartaoAtualId}_${ano}_${mes}`,
+    criadoEm: new Date(),
+    // marcação extra (não atrapalha nada)
+    origem: "faturaCartao",
+    cartaoId: cartaoAtualId,
+    faturaMes: mes,
+    faturaAno: ano
+  });
+
+  // registra pagamento da fatura (pra não pagar 2x e mostrar status)
+  await addDoc(collection(db, "users", userId, "pagamentosFatura"), {
+    cartaoId: cartaoAtualId,
+    mes,
+    ano,
+    data,
+    contaId,
+    valor: total,
+    criadoEm: new Date()
+  });
+
+  await carregarLancamentos();
+  await carregarPagamentosFatura();
+
+  // volta para a fatura
+  closeActions();
+  abrirCartao(cartaoAtualId);
+
+  // atualiza telas principais
+  renderMes();
+  renderAno();
+  renderContas();
+};
 
     
   </script>
 </body>
 </html>
+
 
 
 
