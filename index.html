@@ -1791,6 +1791,7 @@ window.abrirCartao = (id) => {
 
     <button class="modalBtn ok" onclick="abrirCompraCartao()">➕ Adicionar compra</button>
     <button class="modalBtn ok" onclick="abrirPagarFatura()">💸 Pagar fatura</button>
+    <div id="fatAcoes"></div>
 
     <div style="margin-top:10px;" id="fatLista"></div>
   `);
@@ -1838,16 +1839,28 @@ function renderFaturaCartao() {
 
   $("fatTotal").innerText = money(total);
   $("fatInfo").innerText = `${itens.length} item(ns)`;
-    const pg = pagamentosFatura.find(x =>
-    x.cartaoId === cartaoAtualId &&
-    Number(x.mes) === mes &&
-    Number(x.ano) === ano
-  );
+    const acoes = $("fatAcoes");
+const pg = pagamentosFatura.find(x =>
+  x.cartaoId === cartaoAtualId &&
+  Number(x.mes) === mes &&
+  Number(x.ano) === ano
+);
 
-  if (pg) {
-    const dataVis = pg.data ? pg.data.split("-").reverse().join("/") : "";
-    $("fatInfo").innerText = `Paga em ${dataVis} • ${escapeHtml(nomeConta(pg.contaId))}`;
+if (pg) {
+  const dataVis = pg.data ? pg.data.splitPerfeito.split("-").reverse().join("/") : "";
+  $("fatInfo").innerText = `Paga em ${dataVis} • ${escapeHtml(nomeConta(pg.contaId))}`;
+
+  if (acoes) {
+    acoes.innerHTML = `
+      <button class="modalBtn del" onclick="estornarPagamentoFatura('${pg.id}')">
+        ↩ Estornar pagamento
+      </button>
+    `;
   }
+} else {
+  if (acoes) acoes.innerHTML = "";
+}
+
 
 
   const box = $("fatLista");
@@ -2046,11 +2059,29 @@ window.confirmarPagamentoFatura = async () => {
   if (!contaId) return alert("Selecione a conta.");
   if (!data) return alert("Informe a data.");
 
-  // evita pagar duas vezes
-  const jaPago = pagamentosFatura.some(x =>
+    // evita pagar duas vezes (mas corrige caso o lançamento tenha sido apagado manualmente)
+  const pgExistente = pagamentosFatura.find(x =>
     x.cartaoId === cartaoAtualId && Number(x.mes) === mes && Number(x.ano) === ano
   );
-  if (jaPago) return alert("Esta fatura já está paga.");
+
+  if (pgExistente) {
+    // procura o lançamento correspondente (se existir)
+    const achouLanc = dados.some(l =>
+      l.origem === "faturaCartao" &&
+      l.cartaoId === cartaoAtualId &&
+      Number(l.faturaMes) === mes &&
+      Number(l.faturaAno) === ano
+    );
+
+    // se o lançamento não existe mais, limpa o pagamento órfão e permite pagar de novo
+    if (!achouLanc) {
+      await deleteDoc(doc(db, "users", userId, "pagamentosFatura", pgExistente.id));
+      await carregarPagamentosFatura();
+    } else {
+      return alert("Esta fatura já está paga.");
+    }
+  }
+
 
   // soma total da fatura desse mês/ano
   const itens = cartaoCompras.filter(p =>
@@ -2110,11 +2141,45 @@ window.confirmarPagamentoFatura = async () => {
   renderAno();
   renderContas();
 };
+window.estornarPagamentoFatura = async (pgId) => {
+  const pg = pagamentosFatura.find(x => x.id === pgId);
+  if (!pg) return;
+
+  if (!confirm("Estornar este pagamento? Isso removerá o registro do pagamento e também o lançamento da fatura (se existir).")) return;
+
+  // apaga o lançamento correspondente (se existir)
+  const lanc = dados.find(l =>
+    l.origem === "faturaCartao" &&
+    l.cartaoId === pg.cartaoId &&
+    Number(l.faturaMes) === Number(pg.mes) &&
+    Number(l.faturaAno) === Number(pg.ano)
+  );
+
+  if (lanc) {
+    await deleteDoc(doc(db, "users", userId, "lancamentos", lanc.id));
+  }
+
+  // apaga registro do pagamento
+  await deleteDoc(doc(db, "users", userId, "pagamentosFatura", pgId));
+
+  await carregarLancamentos();
+  await carregarPagamentosFatura();
+
+  // atualiza telas
+  closeActions();
+  cartaoAtualId = pg.cartaoId;
+  abrirCartao(cartaoAtualId);
+
+  renderMes();
+  renderAno();
+  renderContas();
+};
 
     
   </script>
 </body>
 </html>
+
 
 
 
