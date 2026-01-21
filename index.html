@@ -402,6 +402,7 @@
         <button id="tabMes" onclick="showTela('mes')">Mês</button>
         <button id="tabContas" onclick="showTela('contas')">Contas</button>
         <button id="tabTransf" onclick="showTela('transf')">Transferências</button>
+        <button id="tabCartoes" onclick="showTela('cartoes')">Cartões</button>
         <!-- REMOVIDO: botão grande de categorias -->
       </div>
 
@@ -629,7 +630,7 @@
         <div class="list" id="listaTransf"></div>
       </div>
 
-      <!-- CATEGORIAS (acesso só pelo ⚙) -->
+      <!-- CATEGORIAS -->
       <div id="telaCats" class="hidden">
         <div class="box">
           <h2>Categorias</h2>
@@ -652,6 +653,49 @@
       <button class="sec" onclick="logout()">Sair</button>
     </div>
   </div>
+  
+  <!-- CARTÕES -->
+<div id="telaCartoes" class="hidden">
+  <details class="accordion" open>
+    <summary>
+      <span>💳 Novo cartão</span>
+      <span class="chev">⌄</span>
+    </summary>
+    <div class="accBody">
+      <div class="field">
+        <label>Nome do cartão</label>
+        <input id="cartaoNome">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Limite</label>
+          <input id="cartaoLimite" type="number">
+        </div>
+        <div class="field">
+          <label>Conta para pagamento</label>
+          <select id="cartaoConta"></select>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Fechamento</label>
+          <input id="cartaoFechamento" type="number" min="1" max="31">
+        </div>
+        <div class="field">
+          <label>Vencimento</label>
+          <input id="cartaoVencimento" type="number" min="1" max="31">
+        </div>
+      </div>
+
+      <button class="main" onclick="criarCartao()">Criar cartão</button>
+    </div>
+  </details>
+
+  <div class="list" id="listaCartoes"></div>
+</div>
+
 
   <!-- MODAL AÇÕES -->
   <div id="actionsBack" class="modalBack hidden" onclick="closeActions(event)">
@@ -720,6 +764,7 @@
       contas: { el: () => $("telaContas"), tab: () => $("tabContas") },
       transf: { el: () => $("telaTransf"), tab: () => $("tabTransf") },
       cats: { el: () => $("telaCats"), tab: () => null }, // sem tab
+      cartoes: { el: () => $("telaCartoes"), tab: () => $("tabCartoes") },
     };
 
     window.showTela = (nome) => {
@@ -896,6 +941,15 @@
         $("tOrigem").appendChild(o1);
         $("tDestino").appendChild(o1.cloneNode(true));
       });
+      // preencher contas para cartões
+$("cartaoConta").innerHTML = "";
+contas.forEach(c=>{
+  const o=document.createElement("option");
+  o.value=c.id;
+  o.text=c.nome;
+  $("cartaoConta").appendChild(o);
+});
+
     }
 
     function preencherFiltroContas(){
@@ -1591,6 +1645,8 @@
         preencherSelectMes();
 
         await carregarTudo();
+        await carregarCartoes();
+
 
         showTela("ano");
       }else{
@@ -1603,8 +1659,85 @@
     window.abrirEditarConta = abrirEditarConta;
     window.abrirEditarLanc = abrirEditarLanc;
     window.abrirEditarTransf = abrirEditarTransf;
+window.criarCartao = async () => {
+  const nome = ($("cartaoNome").value || "").trim();
+  const limite = Number($("cartaoLimite").value || 0);
+  const contaPagamentoId = $("cartaoConta").value;
+  const fechamentoDia = Number($("cartaoFechamento").value || 0);
+  const vencimentoDia = Number($("cartaoVencimento").value || 0);
+
+  if (!nome) return alert("Digite o nome do cartão.");
+  if (!Number.isFinite(limite) || limite <= 0) return alert("Informe um limite válido.");
+  if (!contaPagamentoId) return alert("Selecione a conta de pagamento.");
+  if (!Number.isFinite(fechamentoDia) || fechamentoDia < 1 || fechamentoDia > 31) return alert("Fechamento inválido (1 a 31).");
+  if (!Number.isFinite(vencimentoDia) || vencimentoDia < 1 || vencimentoDia > 31) return alert("Vencimento inválido (1 a 31).");
+
+  await addDoc(collection(db, "users", userId, "cartoes"), {
+    nome,
+    limiteTotal: limite,
+    contaPagamentoId,
+    fechamentoDia,
+    vencimentoDia,
+    criadoEm: new Date()
+  });
+
+  $("cartaoNome").value = "";
+  $("cartaoLimite").value = "";
+  $("cartaoFechamento").value = "";
+  $("cartaoVencimento").value = "";
+
+  await carregarCartoes();
+  showTela("cartoes");
+};
+let cartoes = [];
+
+async function carregarCartoes() {
+  cartoes = [];
+  const snap = await getDocs(collection(db, "users", userId, "cartoes"));
+  snap.forEach(d => cartoes.push({ id: d.id, ...d.data() }));
+  cartoes.sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || "")));
+  renderCartoes();
+}
+
+function renderCartoes() {
+  const el = $("listaCartoes");
+  if (!el) return;
+
+  el.innerHTML = "<h2>Seus cartões</h2>";
+
+  if (cartoes.length === 0) {
+    el.innerHTML += `<div class="mini">Nenhum cartão cadastrado.</div>`;
+    return;
+  }
+
+  cartoes.forEach(c => {
+    const contaNome = nomeConta(c.contaPagamentoId);
+
+    const div = document.createElement("div");
+    div.className = "tx";
+    div.innerHTML = `
+      <div>
+        <div class="title">${escapeHtml(c.nome || "")}</div>
+        <div class="meta">
+          Limite: ${money(c.limiteTotal)} • Paga em: ${escapeHtml(contaNome)} • Fecha dia ${Number(c.fechamentoDia||0)} • Vence dia ${Number(c.vencimentoDia||0)}
+        </div>
+      </div>
+      <div class="right">
+        <button class="iconBtn" onclick="abrirCartao('${c.id}')" title="Abrir">...</button>
+      </div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+window.abrirCartao = (id) => {
+  alert("Cartão selecionado (fase 2): " + id);
+};
+
+    
   </script>
 </body>
 </html>
+
 
 
