@@ -1890,33 +1890,6 @@ function renderFaturaCartao() {
   });
 }
 
-
-  const box = $("fatLista");
-  box.innerHTML = "";
-
-  if (itens.length === 0) {
-    box.innerHTML = `<div class="mini">Nenhuma compra nesta fatura.</div>`;
-    return;
-  }
-
-  itens.forEach(p => {
-    const div = document.createElement("div");
-    div.className = "tx";
-    const info = p.parcelas > 1 ? `${p.parcelaAtual}/${p.parcelas}` : "À vista";
-    const dataVis = p.data ? p.data.split("-").reverse().join("/") : "";
-
-    div.innerHTML = `
-      <div>
-        <div class="title">${escapeHtml(p.categoria || "")}</div>
-        <div class="meta">${escapeHtml(p.descricao || "")} • ${escapeHtml(dataVis)} • ${escapeHtml(info)}</div>
-      </div>
-      <div class="right">
-        <div class="amount desp">${money(p.valorParcela || p.valor)}</div>
-      </div>
-    `;
-    box.appendChild(div);
-  });
-}
 window.abrirCompraCartao = () => {
   const c = cartoes.find(x => x.id === cartaoAtualId);
   if (!c) return;
@@ -2254,6 +2227,7 @@ window.excluirCompraCartaoGrupo = async (grupo) => {
   </script>
 </body>
 </html>
+
 
 
 
