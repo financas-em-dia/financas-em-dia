@@ -1829,11 +1829,9 @@ function renderFaturaCartao() {
   const mes = Number($("fatMes").value);
   const ano = Number($("fatAno").value);
 
-  // Sempre limpa a lista antes (evita “sobras” de outro mês)
   const box = $("fatLista");
   if (box) box.innerHTML = "";
 
-  // Itens da fatura
   const itens = cartaoCompras
     .filter(p => p.cartaoId === cartaoAtualId && Number(p.mes) === mes && Number(p.ano) === ano)
     .sort((a,b)=>String(a.data||"").localeCompare(String(b.data||"")));
@@ -1843,7 +1841,6 @@ function renderFaturaCartao() {
 
   $("fatTotal").innerText = money(total);
 
-  // Status de pagamento + ações (estornar)
   const acoes = $("fatAcoes");
   const pg = pagamentosFatura.find(x =>
     x.cartaoId === cartaoAtualId &&
@@ -1865,7 +1862,6 @@ function renderFaturaCartao() {
     if (acoes) acoes.innerHTML = "";
   }
 
-  // Lista
   if (!box) return;
 
   if (itens.length === 0) {
@@ -1887,12 +1883,13 @@ function renderFaturaCartao() {
       </div>
       <div class="right">
         <div class="amount desp">${money(p.valorParcela || p.valor)}</div>
-        <button class="iconBtn pending" onclick="excluirParcelaCartao('${p.id}')" title="Excluir parcela">🗑</button>
+        <button class="iconBtn pending" onclick="excluirParcelaCartao('${p.id}')">🗑</button>
       </div>
     `;
     box.appendChild(div);
   });
 }
+
 
   const box = $("fatLista");
   box.innerHTML = "";
@@ -2238,6 +2235,7 @@ window.excluirParcelaCartao = async (parcelaId) => {
   await carregarComprasCartao();
   renderFaturaCartao();
 };
+
 window.excluirCompraCartaoGrupo = async (grupo) => {
   if (!confirm("Excluir a compra inteira (todas as parcelas)?")) return;
 
@@ -2256,6 +2254,7 @@ window.excluirCompraCartaoGrupo = async (grupo) => {
   </script>
 </body>
 </html>
+
 
 
 
