@@ -1829,7 +1829,11 @@ function renderFaturaCartao() {
   const mes = Number($("fatMes").value);
   const ano = Number($("fatAno").value);
 
-  // pega parcelas que pertencem a esta fatura
+  // Sempre limpa a lista antes (evita “sobras” de outro mês)
+  const box = $("fatLista");
+  if (box) box.innerHTML = "";
+
+  // Itens da fatura
   const itens = cartaoCompras
     .filter(p => p.cartaoId === cartaoAtualId && Number(p.mes) === mes && Number(p.ano) === ano)
     .sort((a,b)=>String(a.data||"").localeCompare(String(b.data||"")));
@@ -1838,28 +1842,58 @@ function renderFaturaCartao() {
   itens.forEach(p => total += Number(p.valorParcela || p.valor || 0));
 
   $("fatTotal").innerText = money(total);
-  $("fatInfo").innerText = `${itens.length} item(ns)`;
-    const acoes = $("fatAcoes");
-const pg = pagamentosFatura.find(x =>
-  x.cartaoId === cartaoAtualId &&
-  Number(x.mes) === mes &&
-  Number(x.ano) === ano
-);
 
-if (pg) {
-  const dataVis = pg.data ? pg.data.splitPerfeito.split("-").reverse().join("/") : "";
-  $("fatInfo").innerText = `Paga em ${dataVis} • ${escapeHtml(nomeConta(pg.contaId))}`;
+  // Status de pagamento + ações (estornar)
+  const acoes = $("fatAcoes");
+  const pg = pagamentosFatura.find(x =>
+    x.cartaoId === cartaoAtualId &&
+    Number(x.mes) === mes &&
+    Number(x.ano) === ano
+  );
 
-  if (acoes) {
-    acoes.innerHTML = `
-      <button class="modalBtn del" onclick="estornarPagamentoFatura('${pg.id}')">
-        ↩ Estornar pagamento
-      </button>
-    `;
+  if (pg) {
+    const dataVis = pg.data ? pg.data.split("-").reverse().join("/") : "";
+    $("fatInfo").innerText = `Paga em ${dataVis} • ${escapeHtml(nomeConta(pg.contaId))}`;
+
+    if (acoes) {
+      acoes.innerHTML = `
+        <button class="modalBtn del" onclick="estornarPagamentoFatura('${pg.id}')">↩ Estornar pagamento</button>
+      `;
+    }
+  } else {
+    $("fatInfo").innerText = `${itens.length} item(ns)`;
+    if (acoes) acoes.innerHTML = "";
   }
-} else {
-  if (acoes) acoes.innerHTML = "";
+
+  // Lista
+  if (!box) return;
+
+  if (itens.length === 0) {
+    box.innerHTML = `<div class="mini">Nenhuma compra nesta fatura.</div>`;
+    return;
+  }
+
+  itens.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "tx";
+
+    const info = p.parcelas > 1 ? `${p.parcelaAtual}/${p.parcelas}` : "À vista";
+    const dataVis = p.data ? p.data.split("-").reverse().join("/") : "";
+
+    div.innerHTML = `
+      <div>
+        <div class="title">${escapeHtml(p.categoria || "")}</div>
+        <div class="meta">${escapeHtml(p.descricao || "")} • ${escapeHtml(dataVis)} • ${escapeHtml(info)}</div>
+      </div>
+      <div class="right">
+        <div class="amount desp">${money(p.valorParcela || p.valor)}</div>
+        <button class="iconBtn pending" onclick="excluirParcelaCartao('${p.id}')" title="Excluir parcela">🗑</button>
+      </div>
+    `;
+    box.appendChild(div);
+  });
 }
+
 
 
 
@@ -1949,6 +1983,8 @@ window.salvarCompraCartao = async () => {
   if (!Number.isFinite(parcelas) || parcelas < 1) return alert("Parcelas inválidas.");
 
   const valorParcela = valorTotal / parcelas;
+    const grupo = "cc_" + Date.now() + "_" + Math.floor(Math.random()*1e6);
+
 
   // mês/ano da fatura da 1ª parcela (conforme fechamento)
   const { mes: mesBase, ano: anoBase } = faturaMesAno(c, data);
@@ -1970,6 +2006,7 @@ window.salvarCompraCartao = async () => {
       valorParcela,
       mes,
       ano,
+      grupo,
       criadoEm: new Date()
     });
   }
@@ -1993,15 +2030,38 @@ window.excluirCartao = async (id) => {
   const c = cartoes.find(x => x.id === id);
   if (!c) return;
 
-  const emUso = cartaoCompras.some(p => p.cartaoId === id);
-  if (emUso) return alert("Não posso excluir: este cartão tem compras registradas. Apague as compras primeiro.");
+  if (!confirm(`Excluir o cartão "${c.nome}"?\n\nIsso vai apagar as compras pendentes desse cartão e os registros de pagamento.\nAs faturas já pagas continuarão nos lançamentos.`)) return;
 
-  if (!confirm(`Excluir o cartão "${c.nome}"?`)) return;
+  // apaga compras do cartão
+  const qCompras = query(
+    collection(db, "users", userId, "comprasCartao"),
+    where("cartaoId", "==", id)
+  );
+  const snapCompras = await getDocs(qCompras);
+  for (const d of snapCompras.docs) await deleteDoc(d.ref);
 
+  // apaga registros de pagamentos de fatura (pra não sobrar “pago”)
+  const qPag = query(
+    collection(db, "users", userId, "pagamentosFatura"),
+    where("cartaoId", "==", id)
+  );
+  const snapPag = await getDocs(qPag);
+  for (const d of snapPag.docs) await deleteDoc(d.ref);
+
+  // apaga o cartão
   await deleteDoc(doc(db, "users", userId, "cartoes", id));
+
   closeActions();
   await carregarCartoes();
+  await carregarComprasCartao();
+  await carregarPagamentosFatura();
+
+  // atualiza telas
+  renderMes();
+  renderAno();
+  renderContas();
 };
+
 async function carregarPagamentosFatura(){
   pagamentosFatura = [];
   const snap = await getDocs(collection(db, "users", userId, "pagamentosFatura"));
@@ -2174,11 +2234,32 @@ window.estornarPagamentoFatura = async (pgId) => {
   renderAno();
   renderContas();
 };
+window.excluirParcelaCartao = async (parcelaId) => {
+  if (!confirm("Excluir esta parcela da fatura?")) return;
+
+  await deleteDoc(doc(db, "users", userId, "comprasCartao", parcelaId));
+  await carregarComprasCartao();
+  renderFaturaCartao();
+};
+window.excluirCompraCartaoGrupo = async (grupo) => {
+  if (!confirm("Excluir a compra inteira (todas as parcelas)?")) return;
+
+  const q = query(
+    collection(db, "users", userId, "comprasCartao"),
+    where("grupo", "==", grupo)
+  );
+  const snap = await getDocs(q);
+  for (const d of snap.docs) await deleteDoc(d.ref);
+
+  await carregarComprasCartao();
+  renderFaturaCartao();
+};
 
     
   </script>
 </body>
 </html>
+
 
 
 
