@@ -1046,13 +1046,13 @@ contas.forEach(c=>{
       await carregarCategorias();
       await carregarLancamentos();
       await carregarTransferencias();
-      await carregarMetas();
-      await carregarAportesMetas();
       renderAno();
       renderMes();
       renderContas();
       renderTransferenciasMes();
       renderCats();
+      await carregarMetas();
+      await carregarAportesMetas();
     }
 
     // ========= Helpers =========
@@ -2515,6 +2515,7 @@ window.excluirAporteMeta = async (aporteId) => {
   </script>
 </body>
 </html>
+
 
 
 
