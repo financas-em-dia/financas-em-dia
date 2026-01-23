@@ -421,6 +421,8 @@ html, body{
         <button id="tabContas" onclick="showTela('contas')">Contas</button>
         <button id="tabTransf" onclick="showTela('transf')">Transferências</button>
         <button id="tabCartoes" onclick="showTela('cartoes')">Cartões</button>
+        <button id="tabMetas" onclick="showTela('metas')">Metas</button>
+
         <!-- REMOVIDO: botão grande de categorias -->
       </div>
 
@@ -671,6 +673,38 @@ html, body{
       <button class="sec" onclick="logout()">Sair</button>
     </div>
   </div>
+
+  <!-- METAS -->
+<div id="telaMetas" class="hidden">
+  <details class="accordion" id="accNovaMeta" open>
+    <summary>
+      <span>🎯 Nova meta</span>
+      <span class="chev">⌄</span>
+    </summary>
+    <div class="accBody">
+      <div class="field">
+        <label>Nome da meta</label>
+        <input id="metaNome" placeholder="Ex: Viagem, Reserva de emergência">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Valor alvo (R$)</label>
+          <input id="metaAlvo" type="number" step="0.01">
+        </div>
+        <div class="field">
+          <label>Conta destino (cofrinho)</label>
+          <select id="metaDestino"></select>
+        </div>
+      </div>
+
+      <button class="main" onclick="criarMeta()">Criar meta</button>
+    </div>
+  </details>
+
+  <div class="list" id="listaMetas"></div>
+</div>
+
   
   <!-- CARTÕES -->
 <div id="telaCartoes" class="hidden">
@@ -761,6 +795,8 @@ html, body{
     let cartaoCompras = []; // compras do cartão
     let cartaoAtualId = null;
     let pagamentosFatura = [];
+    let metas = [];
+    let aportesMetas = [];
     let grafMes = null;
     let grafAno = null;
 
@@ -786,6 +822,8 @@ html, body{
       transf: { el: () => $("telaTransf"), tab: () => $("tabTransf") },
       cats: { el: () => $("telaCats"), tab: () => null }, // sem tab
       cartoes: { el: () => $("telaCartoes"), tab: () => $("tabCartoes") },
+      metas: { el: () => $("telaMetas"), tab: () => $("tabMetas") },
+
     };
 
     window.showTela = (nome) => {
@@ -798,6 +836,8 @@ html, body{
       if (nome === "contas") renderContas();
       if (nome === "transf") renderTransferenciasMes();
       if (nome === "cats") renderCats();
+      if (nome === "metas") renderMetas();
+
     };
 
     // ========= Login =========
@@ -1005,6 +1045,8 @@ contas.forEach(c=>{
       await carregarCategorias();
       await carregarLancamentos();
       await carregarTransferencias();
+      await carregarMetas();
+      await carregarAportesMetas();
       renderAno();
       renderMes();
       renderContas();
@@ -1213,10 +1255,12 @@ contas.forEach(c=>{
       $("parcelasBox").classList.add("hidden");
       $("accNovoLanc").open = false;
 
-      await carregarLancamentos();
-      renderMes();
-      renderAno();
-      renderContas();
+      // atualização local rápida (evita baixar tudo de novo)
+await carregarLancamentosMinimo();
+renderMes();
+renderAno();
+renderContas();
+
     };
 
     window.pagar = async (id)=>{
@@ -2222,11 +2266,255 @@ window.excluirCompraCartaoGrupo = async (grupo) => {
   await carregarComprasCartao();
   renderFaturaCartao();
 };
+async function carregarLancamentosMinimo(){
+  // Em vez de buscar tudo, só busca do ano selecionado
+  const ano = anoSelecionado();
+
+  dados = [];
+  const qy = query(
+    collection(db, "users", userId, "lancamentos"),
+    where("ano", "==", ano)
+  );
+  const snap = await getDocs(qy);
+  snap.forEach(d => dados.push({ id: d.id, ...d.data() }));
+}
+async function carregarMetas(){
+  metas = [];
+  const snap = await getDocs(collection(db, "users", userId, "metas"));
+  snap.forEach(d => metas.push({ id: d.id, ...d.data() }));
+  metas.sort((a,b)=>String(a.nome||"").localeCompare(String(b.nome||"")));
+  preencherSelectMetaDestino();
+}
+
+async function carregarAportesMetas(){
+  aportesMetas = [];
+  const snap = await getDocs(collection(db, "users", userId, "aportesMetas"));
+  snap.forEach(d => aportesMetas.push({ id: d.id, ...d.data() }));
+}
+function preencherSelectMetaDestino(){
+  const sel = $("metaDestino");
+  if (!sel) return;
+
+  sel.innerHTML = "";
+  // dá preferência pra "cofrinho"
+  const ordenadas = contas.slice().sort((a,b)=>{
+    const pa = a.tipo==="cofrinho" ? 0 : 1;
+    const pb = b.tipo==="cofrinho" ? 0 : 1;
+    return pa-pb || (a.nome||"").localeCompare(b.nome||"");
+  });
+
+  ordenadas.forEach(c=>{
+    const o = document.createElement("option");
+    o.value = c.id;
+    o.text = `${c.nome} (${c.tipo})`;
+    sel.appendChild(o);
+  });
+}
+window.criarMeta = async () => {
+  const nome = ($("metaNome").value||"").trim();
+  const alvo = Number($("metaAlvo").value||0);
+  const destinoId = $("metaDestino").value;
+
+  if (!nome) return alert("Digite o nome da meta.");
+  if (!Number.isFinite(alvo) || alvo <= 0) return alert("Valor alvo inválido.");
+  if (!destinoId) return alert("Selecione a conta destino.");
+
+  await addDoc(collection(db, "users", userId, "metas"), {
+    nome,
+    alvo,
+    destinoId,
+    criadaEm: new Date(),
+    ativa: true
+  });
+
+  $("metaNome").value = "";
+  $("metaAlvo").value = "";
+  $("accNovaMeta").open = false;
+
+  await carregarMetas();
+  renderMetas();
+};
+
+function totalAportado(metaId){
+  return aportesMetas
+    .filter(a => a.metaId === metaId)
+    .reduce((acc,a)=>acc + Number(a.valor||0), 0);
+}
+
+window.renderMetas = () => {
+  const el = $("listaMetas");
+  el.innerHTML = "<h2>Metas</h2>";
+
+  if (metas.length === 0) {
+    el.innerHTML += `<div class="mini">Você ainda não criou metas.</div>`;
+    return;
+  }
+
+  metas.forEach(m=>{
+    const aportado = totalAportado(m.id);
+    const alvo = Number(m.alvo||0);
+    const pct = alvo > 0 ? Math.min(100, (aportado/alvo)*100) : 0;
+    const falta = Math.max(0, alvo - aportado);
+
+    const div = document.createElement("div");
+    div.className = "acc";
+    div.style.cursor = "pointer";
+    div.onclick = () => abrirMeta(m.id);
+
+    div.innerHTML = `
+      <div style="flex:1;">
+        <div class="name">${escapeHtml(m.nome||"")}</div>
+        <div class="type">Destino: ${escapeHtml(nomeConta(m.destinoId))}</div>
+        <div class="mini" style="margin-top:6px;">
+          Aportado: <b>${money(aportado)}</b> • Alvo: <b>${money(alvo)}</b> • Falta: <b>${money(falta)}</b>
+        </div>
+        <div style="margin-top:10px;border:1px solid rgba(148,163,184,0.18);border-radius:999px;overflow:hidden;">
+          <div style="height:10px;width:${pct}%;background:linear-gradient(135deg, rgba(34,197,94,1), rgba(22,163,74,1));"></div>
+        </div>
+        <div class="mini" style="margin-top:6px;">Progresso: ${pct.toFixed(1)}%</div>
+      </div>
+      <div class="right" onclick="event.stopPropagation()">
+        <button class="iconBtn" onclick="abrirOpcoesMeta('${m.id}')" title="Opções">⚙</button>
+      </div>
+    `;
+    el.appendChild(div);
+  });
+};
+
+window.abrirMeta = (metaId) => {
+  const m = metas.find(x=>x.id===metaId);
+  if (!m) return;
+
+  const destino = m.destinoId;
+  const contasOpt = contas
+    .filter(c=>c.id!==destino)
+    .map(c=>`<option value="${c.id}">${escapeHtml(c.nome)} (${escapeHtml(c.tipo)})</option>`)
+    .join("");
+
+  const hist = aportesMetas
+    .filter(a=>a.metaId===metaId)
+    .sort((a,b)=>String(a.data||"").localeCompare(String(b.data||"")));
+
+  const histHtml = hist.length===0
+    ? `<div class="mini">Nenhum aporte ainda.</div>`
+    : hist.map(a=>{
+        const dv = a.data ? a.data.split("-").reverse().join("/") : "";
+        return `
+          <div class="tr">
+            <div>
+              <div class="title">${escapeHtml(nomeConta(a.origemId))} → ${escapeHtml(nomeConta(destino))}</div>
+              <div class="meta">${escapeHtml(dv)}</div>
+            </div>
+            <div class="right">
+              <div class="val">${money(a.valor)}</div>
+              <button class="iconBtn pending" onclick="excluirAporteMeta('${a.id}')" title="Excluir aporte">🗑</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+  openActions(`Meta • ${escapeHtml(m.nome)}`, `
+    <div class="card" style="margin-top:8px;">
+      <h3>Conta destino</h3>
+      <div class="value">${escapeHtml(nomeConta(destino))}</div>
+      <div class="sub">Alvo: ${money(m.alvo)}</div>
+    </div>
+
+    <div class="box" style="margin-top:10px;">
+      <h2>Adicionar aporte</h2>
+      <div class="row2">
+        <div class="field">
+          <label>Conta origem</label>
+          <select id="apOrigem">${contasOpt}</select>
+        </div>
+        <div class="field">
+          <label>Valor</label>
+          <input id="apValor" type="number" step="0.01">
+        </div>
+      </div>
+      <div class="field">
+        <label>Data</label>
+        <input id="apData" type="date">
+      </div>
+      <button class="modalBtn ok" onclick="adicionarAporteMeta('${m.id}')">➕ Aportar</button>
+    </div>
+
+    <div class="box" style="margin-top:10px;">
+      <h2>Histórico</h2>
+      ${histHtml}
+    </div>
+  `);
+
+  $("apData").valueAsDate = new Date();
+};
+
+window.adicionarAporteMeta = async (metaId) => {
+  const m = metas.find(x=>x.id===metaId);
+  if (!m) return;
+
+  const origemId = $("apOrigem").value;
+  const destinoId = m.destinoId;
+  const valor = Number($("apValor").value||0);
+  const data = $("apData").value;
+
+  if (!origemId) return alert("Selecione a conta origem.");
+  if (!Number.isFinite(valor) || valor <= 0) return alert("Valor inválido.");
+  if (!data) return alert("Informe a data.");
+
+  const mes = new Date(data + "T12:00:00").getMonth();
+  const ano = Number(data.slice(0,4));
+
+  // 1) registra aporte (para progresso)
+  await addDoc(collection(db, "users", userId, "aportesMetas"), {
+    metaId,
+    origemId,
+    destinoId,
+    valor,
+    data,
+    mes,
+    ano,
+    criadoEm: new Date()
+  });
+
+  // 2) cria transferência real (para mexer no saldo das contas)
+  await addDoc(collection(db, "users", userId, "transferencias"), {
+    origemId,
+    destinoId,
+    valor,
+    data,
+    mes,
+    ano,
+    desc: `[META] ${m.nome}`,
+    status: "confirmada",
+    criadoEm: new Date()
+  });
+
+  await carregarAportesMetas();
+  await carregarTransferencias();
+
+  closeActions();
+  renderMetas();
+  renderContas();
+  renderMes();
+  renderAno();
+};
+
+window.excluirAporteMeta = async (aporteId) => {
+  const a = aportesMetas.find(x=>x.id===aporteId);
+  if (!a) return;
+
+  if (!confirm("Excluir este aporte? (Isso NÃO apaga a transferência automaticamente.)")) return;
+
+  await deleteDoc(doc(db, "users", userId, "aportesMetas", aporteId));
+  await carregarAportesMetas();
+  renderMetas();
+};
 
     
   </script>
 </body>
 </html>
+
 
 
 
